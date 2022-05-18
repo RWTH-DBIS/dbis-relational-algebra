@@ -13,19 +13,26 @@ def extract_tuples_and_attributes(db_path, expression):
     else:
         output = result.stdout
     
+    if debug:
+        print(output)
+
     if ("ERROR: " in output):
         print("Error: " + output.split("ERROR: ")[1])
         return False
-    else:
-        lines = output.split("\n")
-        attributes = re.findall("[(| ]\w+:", lines[0])
-        attributes = list(map(lambda s: s[1:-1], attributes))
-        tuples = []
-        for line in lines[2:]:
-            if line.startswith("-"):
-                break
-            tuples.append(list(map(str.strip, line.split(","))))
-        return tuples, attributes
+
+    if ("WARNING: " in output):
+        print("Error: " + output.split("WARNING: ")[1])
+        return False
+
+    lines = output.split("\n")
+    attributes = re.findall("[(| ]\w+:", lines[0])
+    attributes = list(map(lambda s: s[1:-1], attributes))
+    tuples = []
+    for line in lines[2:]:
+        if line.startswith("-"):
+            break
+        tuples.append(list(map(str.strip, line.split(","))))
+    return tuples, attributes
 
 def radb_evaluate(db_path, expression):
     x = extract_tuples_and_attributes(db_path, expression)
@@ -56,6 +63,11 @@ def check_table(attributes, attributes_should, tuples, tuples_should):
     for i in range(len(tuples_should)):
         if (tuples_should[i] not in tuples):
             print(f"Missing tuple: {tuples_should[i]}")
+            errors += 1
+
+    for i in range(len(tuples)):
+        if (tuples[i] not in tuples_should):
+            print(f"Superfluous tuple: {tuples[i]}")
             errors += 1
 
     if errors == 0:
