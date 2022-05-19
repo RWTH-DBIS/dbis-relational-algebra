@@ -3,8 +3,11 @@ import re
 from IPython.display import display, Markdown
 from tabulate import tabulate
 
+def radb_raw(db_path, expression):
+    return subprocess.run(["radb", db_path], input = expression, encoding = 'utf8', capture_output = True)
+
 def extract_tuples_and_attributes(db_path, expression):
-    result = subprocess.run(["radb", db_path], input = expression, encoding = 'utf8', capture_output = True)
+    result = radb_raw(db_path, expression)
 
     #print(result.stdout)
 
@@ -12,16 +15,14 @@ def extract_tuples_and_attributes(db_path, expression):
         output = result.stdout.split("ra> ")[1]
     else:
         output = result.stdout
-    
-    if debug:
-        print(output)
 
     if ("ERROR: " in output):
         print("Error: " + output.split("ERROR: ")[1])
         return False
 
+    # Warnings are treated as errors - don't give output, don't return anything that could be handed in as a solution
     if ("WARNING: " in output):
-        print("Error: " + output.split("WARNING: ")[1])
+        print("Error: " + output.split("WARNING: ")[1].split("\n")[0])
         return False
 
     lines = output.split("\n")
