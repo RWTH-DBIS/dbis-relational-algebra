@@ -2,6 +2,7 @@ import subprocess
 import re
 from IPython.display import display, Markdown
 from tabulate import tabulate
+from dbis-exercise-manager.Util import check_table
 
 def radb_raw(db_path, expression):
     return subprocess.run(["radb", db_path], input = expression, encoding = 'utf8', capture_output = True)
@@ -54,25 +55,3 @@ def radb_check(db_path, expression, tuples_should, attributes_should):
         #print(tuples)
         #print(attributes)
         return check_table(attributes, attributes_should, tuples, tuples_should)
-
-def check_table(attributes, attributes_should, tuples, tuples_should):
-    errors = 0
-    for i in range(len(attributes_should)):
-        if (i >= len(attributes) or attributes[i] != attributes_should[i]):
-            print(f"Missing or wrong attribute at position {i}. Expected: {attributes_should[i]}")
-            errors += 1
-    for i in range(len(tuples_should)):
-        if (tuples_should[i] not in tuples):
-            print(f"Missing tuple: {tuples_should[i]}")
-            errors += 1
-
-    for i in range(len(tuples)):
-        if (tuples[i] not in tuples_should):
-            print(f"Superfluous tuple: {tuples[i]}")
-            errors += 1
-
-    if errors == 0:
-        return True
-    else:
-        return False
-        
