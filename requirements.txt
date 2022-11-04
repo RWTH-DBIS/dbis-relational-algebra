@@ -1,1 +1,2 @@
-radb~=3.0.4
+pytest
+pandas

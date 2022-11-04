@@ -1,0 +1,13 @@
+image: python:latest
+
+unit-test:
+    stage: test
+    script:
+        - pip install tox
+        - su postgres -c tox
+
+formatting-check:
+    stage: test
+    script:
+      - pip install black
+      - black --check .
