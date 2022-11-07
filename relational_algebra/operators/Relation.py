@@ -22,4 +22,4 @@ class Relation(Operator):
 
     @typechecked
     def __repr__(self) -> str:
-        return f"\\text{{{self.name}}}"
+        return f"(\\text{{{self.name}}})"

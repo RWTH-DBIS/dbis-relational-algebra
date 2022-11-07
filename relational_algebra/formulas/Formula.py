@@ -4,18 +4,18 @@ from typeguard import typechecked
 from docstring_inheritance import NumpyDocstringInheritanceMeta
 
 
-class Operator(metaclass=NumpyDocstringInheritanceMeta):
+class Formula(metaclass=NumpyDocstringInheritanceMeta):
     """
     An abstract class for the formula operators.
     """
 
     @typechecked
-    def __init__(self, children: list[Operator]) -> None:
+    def __init__(self, children: list[Formula]) -> None:
         """
         Parameters
         ----------
-        children : list[Operator]
-            The children of the operator.
+        children : list[Formula]
+            The children of the formula.
         """
         self.children = children
 
@@ -23,11 +23,11 @@ class Operator(metaclass=NumpyDocstringInheritanceMeta):
     @abstractclassmethod
     def __repr__(self) -> str:
         """
-        Returns a string representation of the operator formatted in Latex Math Mode
+        Returns a string representation of the formula formatted in Latex Math Mode
 
         Returns
         -------
         str
-            A string representation of the operator formatted in Latex Math Mode
+            A string representation of the formula formatted in Latex Math Mode
         """
         pass

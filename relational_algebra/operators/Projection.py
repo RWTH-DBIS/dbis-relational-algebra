@@ -10,7 +10,7 @@ class Projection(Operator):
     """
 
     @typechecked
-    def __init__(self, child: Operator, attributes: str) -> None:
+    def __init__(self, child: Operator, attributes: list[str]) -> None:
         super().__init__(children=[child])
         self.attributes = attributes
 
