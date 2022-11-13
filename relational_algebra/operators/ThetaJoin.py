@@ -11,8 +11,12 @@ class ThetaJoin(Operator):
 
     @typechecked
     def __init__(
-        self, left_child: Operator, right_child: Operator, formula: Formula
+        self, left_child: Operator | str, right_child: Operator | str, formula: Formula
     ) -> None:
+        if isinstance(left_child, str):
+            left_child = Relation(left_child)
+        if isinstance(right_child, str):
+            right_child = Relation(right_child)
         super().__init__(children=[left_child, right_child])
         self.formula = formula
 

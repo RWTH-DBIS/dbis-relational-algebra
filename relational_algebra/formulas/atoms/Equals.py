@@ -2,7 +2,6 @@ from __future__ import annotations
 from typeguard import typechecked
 
 from relational_algebra import *
-from relational_algebra.formulas import PRIMITIVE_TYPES
 
 
 class Equals(Formula):

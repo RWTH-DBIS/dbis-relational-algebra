@@ -4,13 +4,15 @@ from typeguard import typechecked
 from relational_algebra import *
 
 
-class Select(Operator):
+class Selection(Operator):
     """
     This class represents a select in relational algebra
     """
 
     @typechecked
     def __init__(self, child: Operator, condition: Formula) -> None:
+        if isinstance(child, str):
+            child = Relation(child)
         super().__init__(children=[child])
         self.condition = condition
 

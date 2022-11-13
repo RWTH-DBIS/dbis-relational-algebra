@@ -4,7 +4,7 @@ from typeguard import typechecked
 from relational_algebra import *
 
 
-class And(Formula):
+class Not(Formula):
     """
     This class represents a negation
     """

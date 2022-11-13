@@ -11,6 +11,8 @@ class Rename(Operator):
 
     @typechecked
     def __init__(self, child: Operator, mapping: dict[str, str] | str) -> None:
+        if isinstance(child, str):
+            child = Relation(child)
         super().__init__(children=[child])
         self.mapping = mapping
 

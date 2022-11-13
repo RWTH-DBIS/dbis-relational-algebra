@@ -21,9 +21,9 @@ setup(
     description=Version.description,
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/PHochmann/dbis-relational-algebra",
-    author="Philipp Hochmann",
-    author_email="hochmann@dbis.rwth-aachen.de",
+    url="https://git.rwth-aachen.de/i5/teaching/dbis-relational-algebra",
+    # author="",
+    # author_email="@dbis.rwth-aachen.de",
     license="Apache",
     classifiers=[
         "Programming Language :: Python :: 3.10",
