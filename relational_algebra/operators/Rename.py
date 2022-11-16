@@ -10,7 +10,7 @@ class Rename(ra.Operator):
     """
 
     @typechecked
-    def __init__(self, child: ra.Operator, mapping: dict[str, str] | str) -> None:
+    def __init__(self, child: ra.Operator | str, mapping: dict[str, str] | str) -> None:
         if isinstance(child, str):
             child = ra.Relation(child)
         super().__init__(children=[child])

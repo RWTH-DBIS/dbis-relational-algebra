@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typeguard import typechecked
 
-from typing import Optional
+from typing import Optional, Iterable
 import relational_algebra as ra
 
 
@@ -33,16 +33,17 @@ class Relation(ra.Operator):
 
     @typechecked
     def add_row(
-        self, row: tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]
+        self, row: tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES] | RelationEntry
     ) -> None:
         """
         Adds a row to the relation
 
         Parameters
         ----------
-        row : tuple[ra.PRIMITIVE_TYPES]
+        row : tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES] | RelationEntry
             The row to add to the relation
         """
+        row = list(row)
         if len(self.attributes) != len(row):
             raise Exception(
                 f"Row ({row}) does not have the same number of attributes ({self.attributes}) as the relation {self.name}"
@@ -52,16 +53,16 @@ class Relation(ra.Operator):
     @typechecked
     def add_rows(
         self,
-        rows: list[tuple[ra.PRIMITIVE_TYPES]]
-        | set[tuple[ra.PRIMITIVE_TYPES]]
-        | list[list[ra.PRIMITIVE_TYPES]],
+        rows: list[tuple[ra.PRIMITIVE_TYPES] | RelationEntry]
+        | set[tuple[ra.PRIMITIVE_TYPES] | RelationEntry]
+        | list[list[ra.PRIMITIVE_TYPES] | RelationEntry],
     ) -> None:
         """
         Adds multiple rows to the relation
 
         Parameters
         ----------
-        rows : list[tuple[ra.PRIMITIVE_TYPES]] | set[tuple[ra.PRIMITIVE_TYPES]] | list[list[ra.PRIMITIVE_TYPES]]
+        rows : list[tuple[ra.PRIMITIVE_TYPES] | RelationEntry] | set[tuple[ra.PRIMITIVE_TYPES] | RelationEntry] | list[list[ra.PRIMITIVE_TYPES] | RelationEntry]
             The rows to add to the relation
         """
         for row in rows:
@@ -138,7 +139,9 @@ class Relation(ra.Operator):
             The projection of the relation
         """
         if isinstance(attributes, str):
-            attributes = [attributes]
+            attr = list()
+            attr.append(attributes)
+            attributes = attr
 
         attributes = self.get_attribute_names(attributes)
         if attributes is None:
@@ -155,6 +158,29 @@ class Relation(ra.Operator):
                 )
             )
         return new_relation
+
+    @typechecked
+    def union_compatibility(self, other: Relation) -> Optional[list[str]]:
+        """
+        Checks if two relations are compatible for a union operation.
+        If so, the names of the attributes are returned.
+
+        Parameters
+        ----------
+        other : Relation
+            The other relation
+
+        Returns
+        -------
+        Optional[str]
+            The names of the attributes
+        """
+        if len(self.attributes) != len(other.attributes):
+            return None
+        for attr1, attr2 in zip(self.attributes, other.attributes):
+            if self.get_attribute_name(attr1) != other.get_attribute_name(attr2):
+                return None
+        return self.get_attribute_names(self.attributes)
 
 
 class RelationEntry:
@@ -214,7 +240,9 @@ class RelationEntry:
             The value of the attributes
         """
         if isinstance(attributes, str):
-            attributes = [attributes]
+            attr = list()
+            attr.append(attributes)
+            attributes = attr
 
         attribute_names = self.relation.get_attribute_names(attributes)
         if attribute_names is None:
@@ -226,3 +254,11 @@ class RelationEntry:
         if len(result) == 1:
             return result[0]
         return result
+
+    @typechecked
+    def __tuple__(self) -> tuple[ra.PRIMITIVE_TYPES]:
+        return tuple(self.row)
+
+    @typechecked
+    def __iter__(self) -> Iterable[ra.PRIMITIVE_TYPES]:
+        return iter(self.row)

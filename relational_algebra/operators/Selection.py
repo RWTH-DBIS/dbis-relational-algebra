@@ -10,7 +10,7 @@ class Selection(ra.Operator):
     """
 
     @typechecked
-    def __init__(self, child: ra.Operator, condition: ra.Formula) -> None:
+    def __init__(self, child: ra.Operator | str, condition: ra.Formula) -> None:
         if isinstance(child, str):
             child = ra.Relation(child)
         super().__init__(children=[child])
