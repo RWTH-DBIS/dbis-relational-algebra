@@ -3,6 +3,8 @@ from abc import ABC, ABCMeta, abstractclassmethod
 from typeguard import typechecked
 from docstring_inheritance import NumpyDocstringInheritanceMeta
 
+import relational_algebra as ra
+
 
 class Formula(metaclass=NumpyDocstringInheritanceMeta):
     """
@@ -29,5 +31,23 @@ class Formula(metaclass=NumpyDocstringInheritanceMeta):
         -------
         str
             A string representation of the formula formatted in Latex Math Mode
+        """
+        pass
+
+    @typechecked
+    @abstractclassmethod
+    def evaluate(self, entry: ra.RelationEntry) -> bool:
+        """
+        Evaluates whether the entry satifies the formula
+
+        Parameters
+        ----------
+        entry : RelationEntry
+            The entry to evaluate the formula for
+
+        Returns
+        -------
+        bool
+            The result of the evaluation
         """
         pass

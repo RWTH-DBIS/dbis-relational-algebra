@@ -1,20 +1,22 @@
 from __future__ import annotations
 from typeguard import typechecked
 
-from relational_algebra import *
+import relational_algebra as ra
 
 
-class CrossProduct(Operator):
+class CrossProduct(ra.Operator):
     """
     This class represents a cross product in relational algebra
     """
 
     @typechecked
-    def __init__(self, left_child: Operator | str, right_child: Operator | str) -> None:
+    def __init__(
+        self, left_child: ra.Operator | str, right_child: ra.Operator | str
+    ) -> None:
         if isinstance(left_child, str):
-            left_child = Relation(left_child)
+            left_child = ra.Relation(left_child)
         if isinstance(right_child, str):
-            right_child = Relation(right_child)
+            right_child = ra.Relation(right_child)
         super().__init__(children=[left_child, right_child])
 
     @typechecked

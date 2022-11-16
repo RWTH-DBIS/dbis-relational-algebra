@@ -1,18 +1,18 @@
 from __future__ import annotations
 from typeguard import typechecked
 
-from relational_algebra import *
+import relational_algebra as ra
 
 
-class Selection(Operator):
+class Selection(ra.Operator):
     """
     This class represents a select in relational algebra
     """
 
     @typechecked
-    def __init__(self, child: Operator, condition: Formula) -> None:
+    def __init__(self, child: ra.Operator, condition: ra.Formula) -> None:
         if isinstance(child, str):
-            child = Relation(child)
+            child = ra.Relation(child)
         super().__init__(children=[child])
         self.condition = condition
 

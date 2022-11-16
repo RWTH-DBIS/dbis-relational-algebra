@@ -3,7 +3,7 @@ from abc import ABC, ABCMeta, abstractclassmethod
 from typeguard import typechecked
 from docstring_inheritance import NumpyDocstringInheritanceMeta
 
-from relational_algebra import *
+import relational_algebra as ra
 
 
 class Operator(metaclass=NumpyDocstringInheritanceMeta):
@@ -49,7 +49,7 @@ class Operator(metaclass=NumpyDocstringInheritanceMeta):
         Operator
             The difference of two operators
         """
-        return Difference(self, other)
+        return ra.Difference(self, other)
 
     @typechecked
     def __mul__(self, other: Operator) -> Operator:
@@ -66,7 +66,7 @@ class Operator(metaclass=NumpyDocstringInheritanceMeta):
         Operator
             The cross product of two operators
         """
-        return CrossProduct(self, other)
+        return ra.CrossProduct(self, other)
 
     @typechecked
     def union(self, other: Operator) -> Operator:
@@ -83,7 +83,7 @@ class Operator(metaclass=NumpyDocstringInheritanceMeta):
         Operator
             The union of two operators
         """
-        return Union(self, other)
+        return ra.Union(self, other)
 
     @typechecked
     def intersection(self, other: Operator) -> Operator:
@@ -100,10 +100,10 @@ class Operator(metaclass=NumpyDocstringInheritanceMeta):
         Operator
             The intersection of two operators
         """
-        return Intersection(self, other)
+        return ra.Intersection(self, other)
 
     @typechecked
-    def evaluate(self) -> Relation:
+    def evaluate(self) -> ra.Relation:
         """
         Evaluates the operator
 

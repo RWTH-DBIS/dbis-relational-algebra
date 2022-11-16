@@ -1,18 +1,18 @@
 from __future__ import annotations
 from typeguard import typechecked
 
-from relational_algebra import *
+import relational_algebra as ra
 
 
-class Rename(Operator):
+class Rename(ra.Operator):
     """
     This class represents a rename in relational algebra
     """
 
     @typechecked
-    def __init__(self, child: Operator, mapping: dict[str, str] | str) -> None:
+    def __init__(self, child: ra.Operator, mapping: dict[str, str] | str) -> None:
         if isinstance(child, str):
-            child = Relation(child)
+            child = ra.Relation(child)
         super().__init__(children=[child])
         self.mapping = mapping
 

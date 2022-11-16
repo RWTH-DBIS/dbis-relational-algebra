@@ -1,5 +1,3 @@
-PRIMITIVE_TYPES = int | float | str | bool
-
 from relational_algebra.formulas.Formula import Formula
 from relational_algebra.formulas.atoms.Equals import Equals
 from relational_algebra.formulas.atoms.GreaterEquals import GreaterEquals
@@ -12,6 +10,7 @@ from relational_algebra.formulas.conenctives.Or import Or
 
 from relational_algebra.operators.Operator import Operator
 from relational_algebra.operators.Relation import Relation
+from relational_algebra.operators.Relation import RelationEntry
 from relational_algebra.operators.CrossProduct import CrossProduct
 from relational_algebra.operators.Difference import Difference
 from relational_algebra.operators.Intersection import Intersection
@@ -22,4 +21,5 @@ from relational_algebra.operators.Selection import Selection
 from relational_algebra.operators.ThetaJoin import ThetaJoin
 from relational_algebra.operators.Union import Union
 
+PRIMITIVE_TYPES = int | float | str | bool
 ATOM_TYPES = Equals | GreaterEquals | GreaterThan | LessEquals | LessThan

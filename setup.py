@@ -22,8 +22,8 @@ setup(
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://git.rwth-aachen.de/i5/teaching/dbis-relational-algebra",
-    # author="",
-    # author_email="@dbis.rwth-aachen.de",
+    author="Til Mohr",
+    author_email="til.mohr@rwth-aachen.de",
     license="Apache",
     classifiers=[
         "Programming Language :: Python :: 3.10",

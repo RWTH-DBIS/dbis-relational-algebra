@@ -2,10 +2,10 @@ from __future__ import annotations
 from typeguard import typechecked
 
 from typing import Optional
-from relational_algebra import *
+import relational_algebra as ra
 
 
-class Relation(Operator):
+class Relation(ra.Operator):
     """
     This class represents a relation in relational algebra
     """
@@ -32,13 +32,15 @@ class Relation(Operator):
         return self
 
     @typechecked
-    def add_row(self, row: tuple[PRIMITIVE_TYPES] | list[PRIMITIVE_TYPES]) -> None:
+    def add_row(
+        self, row: tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]
+    ) -> None:
         """
         Adds a row to the relation
 
         Parameters
         ----------
-        row : tuple[PRIMITIVE_TYPES]
+        row : tuple[ra.PRIMITIVE_TYPES]
             The row to add to the relation
         """
         if len(self.attributes) != len(row):
@@ -50,16 +52,16 @@ class Relation(Operator):
     @typechecked
     def add_rows(
         self,
-        rows: list[tuple[PRIMITIVE_TYPES]]
-        | set[tuple[PRIMITIVE_TYPES]]
-        | list[list[PRIMITIVE_TYPES]],
+        rows: list[tuple[ra.PRIMITIVE_TYPES]]
+        | set[tuple[ra.PRIMITIVE_TYPES]]
+        | list[list[ra.PRIMITIVE_TYPES]],
     ) -> None:
         """
         Adds multiple rows to the relation
 
         Parameters
         ----------
-        rows : list[tuple[PRIMITIVE_TYPES]] | set[tuple[PRIMITIVE_TYPES]] | list[list[PRIMITIVE_TYPES]]
+        rows : list[tuple[ra.PRIMITIVE_TYPES]] | set[tuple[ra.PRIMITIVE_TYPES]] | list[list[ra.PRIMITIVE_TYPES]]
             The rows to add to the relation
         """
         for row in rows:
@@ -83,7 +85,7 @@ class Relation(Operator):
         for attr in self.attributes:
             if attr.lower() == attribute.lower():
                 return attr
-            if f"{self.name}.{attr}".lower() == f"{self.name}.{attribute}".lower():
+            if f"{self.name}.{attr}".lower() == attribute.lower():
                 return attr
         return None
 
@@ -129,7 +131,7 @@ class Relation(Operator):
 
         attributes = self.get_attribute_names(attributes)
         if attributes is None:
-            raise ValueError(f"Attribute not found in: {attributes}")
+            raise KeyError(f"Attribute not found in: {attributes}")
 
         # create new relation using the same name and values of given attributes only
         new_relation = Relation(self.name)
@@ -151,14 +153,16 @@ class RelationEntry:
 
     @typechecked
     def __init__(
-        self, relation: Relation, row: tuple[PRIMITIVE_TYPES] | list[PRIMITIVE_TYPES]
+        self,
+        relation: Relation,
+        row: tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES],
     ) -> None:
         """
         Parameters
         ----------
         relation : Relation
             The relation of the entry
-        row : tuple[PRIMITIVE_TYPES] | list[PRIMITIVE_TYPES]
+        row : tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]
             The row of the entry
         """
         assert len(relation.attributes) == len(row)
@@ -184,7 +188,7 @@ class RelationEntry:
     @typechecked
     def __getitem__(
         self, attributes: str | tuple[str]
-    ) -> PRIMITIVE_TYPES | tuple[PRIMITIVE_TYPES] | list[PRIMITIVE_TYPES]:
+    ) -> ra.PRIMITIVE_TYPES | tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]:
         """
         Returns the value of the attributes
 
@@ -195,7 +199,7 @@ class RelationEntry:
 
         Returns
         -------
-        PRIMITIVE_TYPES | tuple[PRIMITIVE_TYPES]
+        ra.PRIMITIVE_TYPES | tuple[ra.PRIMITIVE_TYPES]
             The value of the attributes
         """
         if isinstance(attributes, str):
@@ -203,7 +207,7 @@ class RelationEntry:
 
         attribute_names = self.relation.get_attribute_names(attributes)
         if attribute_names is None:
-            raise ValueError(f"Attribute not found in: {attributes}")
+            raise KeyError(f"Attribute not found in: {attributes}")
 
         result = []
         for attribute_name in attribute_names:

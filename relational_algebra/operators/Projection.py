@@ -1,20 +1,20 @@
 from __future__ import annotations
 from typeguard import typechecked
 
-from relational_algebra import *
+import relational_algebra as ra
 
 
-class Projection(Operator):
+class Projection(ra.Operator):
     """
     This class represents a projection in relational algebra
     """
 
     @typechecked
     def __init__(
-        self, child: Operator | str, attributes: str | tuple[str] | list[str]
+        self, child: ra.Operator | str, attributes: str | tuple[str] | list[str]
     ) -> None:
         if isinstance(child, str):
-            child = Relation(child)
+            child = ra.Relation(child)
         super().__init__(children=[child])
         if isinstance(attributes, str):
             attributes = [attributes]
@@ -25,6 +25,6 @@ class Projection(Operator):
         return f"\\prod_{{{','.join(self.attributes)}}}({self.children[0]})"
 
     @typechecked
-    def evaluate(self) -> Relation:
+    def evaluate(self) -> ra.Relation:
         child_relation = self.children[0].evaluate()
         return child_relation[("b", "a")]
