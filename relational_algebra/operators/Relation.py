@@ -82,12 +82,23 @@ class Relation(ra.Operator):
         Optional[str]
             The name of the attribute
         """
+        candidates = list()
         for attr in self.attributes:
             if attr.lower() == attribute.lower():
-                return attr
+                candidates.append(attr)
             if f"{self.name}.{attr}".lower() == attribute.lower():
-                return attr
-        return None
+                candidates.append(attr)
+            if "." in attribute:
+                if attr.split(".")[-1].lower() == attribute.lower():
+                    candidates.append(attr)
+
+        if len(candidates) == 0:
+            return None
+        if len(candidates) > 1:
+            raise Exception(
+                f"Multiple candidates for attribute {attribute}: {candidates}"
+            )
+        return candidates[0]
 
     @typechecked
     def get_attribute_names(

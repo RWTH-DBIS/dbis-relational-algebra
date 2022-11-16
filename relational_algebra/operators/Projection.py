@@ -17,7 +17,9 @@ class Projection(ra.Operator):
             child = ra.Relation(child)
         super().__init__(children=[child])
         if isinstance(attributes, str):
-            attributes = [attributes]
+            attr = list()
+            attr.append(attributes)
+            attributes = attr
         self.attributes = attributes
 
     @typechecked
@@ -27,4 +29,4 @@ class Projection(ra.Operator):
     @typechecked
     def evaluate(self) -> ra.Relation:
         child_relation = self.children[0].evaluate()
-        return child_relation[("b", "a")]
+        return child_relation[tuple(self.attributes)]

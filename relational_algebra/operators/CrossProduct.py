@@ -22,3 +22,29 @@ class CrossProduct(ra.Operator):
     @typechecked
     def __repr__(self) -> str:
         return f"({self.children[0]} \\times {self.children[1]})"
+
+    @typechecked
+    def evaluate(self) -> ra.Relation:
+        left_relation = self.children[0].evaluate()
+        right_relation = self.children[1].evaluate()
+        left_attributes = left_relation.attributes
+        right_attributes = right_relation.attributes
+        # create new ordered list of attributes
+        new_attributes = list()
+        for attribute in left_attributes:
+            new_attributes.append(f"{left_relation.name}.{attribute}")
+        for attribute in right_attributes:
+            new_attributes.append(f"{right_relation.name}.{attribute}")
+        # create the new relation
+        new_relation = ra.Relation("")
+        new_relation.attributes = new_attributes
+        # add the rows
+        for left_row in left_relation.rows:
+            for right_row in right_relation.rows:
+                new_row = list()
+                for attribute in left_attributes:
+                    new_row.append(left_row[attribute])
+                for attribute in right_attributes:
+                    new_row.append(right_row[attribute])
+                new_relation.add_row(new_row)
+        return new_relation
