@@ -1,10 +1,10 @@
-image: python:latest
+image: python:3.10
 
 unit-test:
     stage: test
     script:
         - pip install tox
-        - su postgres -c tox
+        - tox
 
 formatting-check:
     stage: test
