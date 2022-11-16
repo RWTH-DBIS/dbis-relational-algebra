@@ -147,7 +147,6 @@ def test_greaterthan_two_columns():
     assert sum([bool(formula.evaluate(row)) for row in rows]) == 1
 
 
-
 ##############
 # LessEquals #
 ##############
@@ -191,8 +190,6 @@ def test_lessequals_two_columns():
     formula = LessEquals(f"{r.name}.c", f"{r.name}.a")
     # formula true for exactly two rows
     assert sum([bool(formula.evaluate(row)) for row in rows]) == 2
-
-
 
 
 ##############
