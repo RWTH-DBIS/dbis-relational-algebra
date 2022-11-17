@@ -1,7 +1,4 @@
-# DBIS Relational Model 
+# DBIS Relational Algebra
 
-This set of classes is used to define objects of the relational model (as a result of a conversion from an ER-diagram)
-
-## Usage
-
-Todo
+[![pypi](https://img.shields.io/pypi/pyversions/dbis-relational-algebra)](https://pypi.org/project/dbis-relational-algebra/)
+[![PyPI Status](https://img.shields.io/pypi/v/dbis-relational-algebra)](https://pypi.org/project/dbis-relational-algebra/)
