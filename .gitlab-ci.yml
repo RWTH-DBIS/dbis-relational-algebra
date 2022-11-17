@@ -1,10 +1,18 @@
-image: python:3.11
+image: python:latest
 
-unit-test:
+unit-test-3.11:
+    image: python:3.11
     stage: test
     script:
         - pip install tox
-        - tox
+        - tox -r -e py311
+
+unit-test-3.10:
+    image: python:3.10
+    stage: test
+    script:
+        - pip install tox
+        - tox -r -e py310
 
 formatting-check:
     stage: test
