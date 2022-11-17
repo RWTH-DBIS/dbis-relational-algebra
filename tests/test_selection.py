@@ -16,7 +16,7 @@ def test_tautology():
 
 def test_contradiction():
     r = Relation("R")
-    r.attributes = ["a", "b", "c"]
+    r.add_attributes(["a", "b", "c"])
     r.add_rows([["a", "b", "c"], ["d", "e", "f"]])
     contradiction_formula = Not(Equals("a", "a"))
     s = Selection(r, contradiction_formula)
@@ -27,7 +27,7 @@ def test_contradiction():
 
 def test_partial():
     r = Relation("R")
-    r.attributes = ["a", "b", "c"]
+    r.add_attributes(["a", "b", "c"])
     r.add_rows([["a", "b", "c"], ["d", "e", "f"]])
     partial_formula = Equals("b", "e")
     s = Selection(r, partial_formula)

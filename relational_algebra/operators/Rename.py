@@ -36,7 +36,15 @@ class Rename(ra.Operator):
         if isinstance(self.mapping, str):
             # rename the relation
             new_relation = ra.Relation(self.mapping)
-            new_relation.attributes = relation.attributes
+            new_attributes = list()
+            for attribute in relation.get_attribute_names(relation.attributes):
+                names, attr = attribute.split(".")
+                old_names = list()
+                for name in names.split("+"):
+                    if name != relation.name:
+                        old_names.append(name)
+                new_attributes.append(f"{'+'.join(old_names)}.{attr}")
+            new_relation.add_attributes(new_attributes)
             # add the rows
             new_relation.add_rows(relation.rows)
             return new_relation
@@ -68,13 +76,15 @@ class Rename(ra.Operator):
         # create the new relation
         new_relation = ra.Relation(relation.name)
         # rename the attributes
+        new_attributes = list()
         for attribute in relation.attributes:
             if relation.get_attribute_name(attribute) not in new_mapping.keys():
-                new_relation.attributes.append(attribute)
+                new_attributes.append(attribute)
             else:
-                new_relation.attributes.append(
+                new_attributes.append(
                     new_mapping[relation.get_attribute_name(attribute)]
                 )
+        new_relation.add_attributes(new_attributes)
         # add the rows
         new_relation.add_rows(relation.rows)
         return new_relation

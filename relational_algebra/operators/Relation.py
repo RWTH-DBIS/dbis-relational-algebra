@@ -38,11 +38,46 @@ class Relation(ra.Operator):
         # get the attributes
         cursor = sql_con.cursor()
         cursor.execute(f"PRAGMA table_info({self.name})")
-        self.attributes = [row[1] for row in cursor.fetchall()]
+        self.attributes = [f"{self.name}.{row[1]}" for row in cursor.fetchall()]
         # get the rows
         cursor.execute(f"SELECT * FROM {self.name}")
         self.add_rows(cursor.fetchall())
         return self
+
+    @typechecked
+    def add_attribute(self, attribute: str, add_name: bool = True) -> None:
+        """
+        Add an attribute to the relation
+
+        Parameters
+        ----------
+        attribute : str
+            The attribute to add
+        add_name : bool
+            Whether to add the name of the relation to the attribute
+        """
+        assert len(self.rows) == 0
+        if add_name:
+            if "." not in attribute:
+                attribute = f"{self.name}.{attribute}"
+            else:
+                attribute = f"{self.name}+{attribute}"
+        self.attributes.append(attribute)
+
+    @typechecked
+    def add_attributes(self, attributes: Iterable[str], add_name: bool = True) -> None:
+        """
+        Add attributes to the relation
+
+        Parameters
+        ----------
+        attributes : Iterable[str]
+            The attributes to add
+        add_name : bool
+            Whether to add the name of the relation to the attributes
+        """
+        for attribute in attributes:
+            self.add_attribute(attribute, add_name=add_name)
 
     @typechecked
     def add_row(
@@ -97,13 +132,20 @@ class Relation(ra.Operator):
             The name of the attribute
         """
         candidates = list()
-        for attr in self.attributes:
-            if attr.lower() == attribute.lower():
-                candidates.append(attr)
-            if f"{self.name}.{attr}".lower() == attribute.lower():
-                candidates.append(attr)
-            if "." in attr:
+        if "." not in attribute:
+            for attr in self.attributes:
                 if attr.split(".")[-1].lower() == attribute.lower():
+                    candidates.append(attr)
+        else:
+            na, at = attribute.split(".")
+            for attr in self.attributes:
+                names, a = attr.split(".")
+                any = False
+                for n in names.split("+"):
+                    for nn in na.split("+"):
+                        if n.lower() == nn.lower() and a.lower() == at.lower():
+                            any = True
+                if any:
                     candidates.append(attr)
 
         if len(candidates) == 0:
@@ -208,7 +250,7 @@ class Relation(ra.Operator):
 
         # create new relation using the same name and values of given attributes only
         new_relation = Relation(self.name)
-        new_relation.attributes = attributes
+        new_relation.add_attributes(self.get_minimal_attribute_names(attributes))
         new_relation.rows = set()
         for row in self.rows:
             new_relation.rows.add(

@@ -12,8 +12,8 @@ def test_division_symbol():
 def test_division():
     r1 = Relation("R1")
     r2 = Relation("R2")
-    r1.attributes = ["a", "b", "c", "d"]
-    r2.attributes = ["c", "d"]
+    r1.add_attributes(["a", "b", "c", "d"])
+    r2.add_attributes(["c", "d"])
     r1.add_rows(
         [
             ["a", "a", "a", "a"],
@@ -34,7 +34,7 @@ def test_division():
     d = r1 / r2
     result = d.evaluate()
     rows = result.rows
-    assert result.attributes == ["a", "b"]
+    assert result.get_minimal_attribute_names(result.attributes) == ["a", "b"]
     assert set(rows) == {
         ("z", "z"),
     }

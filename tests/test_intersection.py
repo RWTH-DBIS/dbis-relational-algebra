@@ -12,8 +12,8 @@ def test_and():
 def test_evaluate_raises_exception():
     r1 = Relation("R1")
     r2 = Relation("R2")
-    r1.attributes = ["a", "b"]
-    r2.attributes = ["b", "c"]
+    r1.add_attributes(["a", "b"])
+    r2.add_attributes(["b", "c"])
     r1.add_rows([["a", "b"], ["d", "e"]])
     r2.add_rows([["c", "d"], ["f", "g"]])
     i = r1 & r2
@@ -24,8 +24,8 @@ def test_evaluate_raises_exception():
 def test_equal():
     r1 = Relation("R1")
     r2 = Relation("R2")
-    r1.attributes = ["a", "b"]
-    r2.attributes = ["a", "b"]
+    r1.add_attributes(["a", "b"])
+    r2.add_attributes(["a", "b"])
     r1.add_rows([["a", "b"], ["d", "e"]])
     r2.add_rows([["a", "b"], ["d", "e"]])
     i = r1 & r2
@@ -37,8 +37,8 @@ def test_equal():
 def test_subset():
     r1 = Relation("R1")
     r2 = Relation("R2")
-    r1.attributes = ["a", "b"]
-    r2.attributes = ["a", "b"]
+    r1.add_attributes(["a", "b"])
+    r2.add_attributes(["a", "b"])
     r1.add_rows([["a", "b"], ["d", "e"]])
     r2.add_rows([["a", "b"], ["d", "e"], ["f", "g"]])
     i = r1 & r2
@@ -50,8 +50,8 @@ def test_subset():
 def test_superset():
     r1 = Relation("R1")
     r2 = Relation("R2")
-    r1.attributes = ["a", "b"]
-    r2.attributes = ["a", "b"]
+    r1.add_attributes(["a", "b"])
+    r2.add_attributes(["a", "b"])
     r1.add_rows([["a", "b"], ["d", "e"], ["f", "g"]])
     r2.add_rows([["a", "b"], ["d", "e"]])
     i = r1 & r2

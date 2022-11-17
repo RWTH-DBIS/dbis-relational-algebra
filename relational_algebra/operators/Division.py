@@ -32,9 +32,13 @@ class Division(ra.Operator):
         left_relation = self.children[0].evaluate(sql_con)
         right_relation = self.children[1].evaluate(sql_con)
         # get attributes from left relation
-        left_attributes = left_relation.get_attribute_names(left_relation.attributes)
+        left_attributes = left_relation.get_minimal_attribute_names(
+            left_relation.attributes
+        )
         # get attributes from right relation
-        right_attributes = right_relation.get_attribute_names(right_relation.attributes)
+        right_attributes = right_relation.get_minimal_attribute_names(
+            right_relation.attributes
+        )
         # get new attributes
         new_attributes = list()
         for attribute in left_attributes:

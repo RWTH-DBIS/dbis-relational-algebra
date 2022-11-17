@@ -32,8 +32,12 @@ class NaturalJoin(ra.Operator):
         left_relation = self.children[0].evaluate(sql_con)
         right_relation = self.children[1].evaluate(sql_con)
         # determine attribute names
-        left_attributes = left_relation.get_attribute_names(left_relation.attributes)
-        right_attributes = right_relation.get_attribute_names(right_relation.attributes)
+        left_attributes = left_relation.get_minimal_attribute_names(
+            left_relation.attributes
+        )
+        right_attributes = right_relation.get_minimal_attribute_names(
+            right_relation.attributes
+        )
         # determine common attributes
         common_attributes = list()
         for attribute in left_attributes:
@@ -45,8 +49,8 @@ class NaturalJoin(ra.Operator):
             if attribute not in common_attributes:
                 new_attributes.append(attribute)
         # create new relation
-        new_relation = ra.Relation("")
-        new_relation.attributes = new_attributes
+        new_relation = ra.Relation(f"{left_relation.name}+{right_relation.name}")
+        new_relation.add_attributes(new_attributes)
         # add rows
         for left_row in left_relation.rows:
             for right_row in right_relation.rows:

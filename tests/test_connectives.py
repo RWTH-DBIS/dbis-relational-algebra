@@ -5,7 +5,7 @@ from relational_algebra import *
 
 def test_not():
     r = Relation("R")
-    r.attributes = ["a", "b", "c"]
+    r.add_attributes(["a", "b", "c"])
     r.add_rows([["a", "b", "a"], ["d", "e", "f"]])
     formula = Equals(f"{r.name}.a", f"{r.name}.c")
     not_formula = Not(formula)
@@ -16,7 +16,7 @@ def test_not():
 
 def test_and():
     r = Relation("R")
-    r.attributes = ["a", "b", "c"]
+    r.add_attributes(["a", "b", "c"])
     r.add_rows([["a", "b", "a"], ["d", "e", "f"], ["b", "b", "b"]])
     formula1 = Equals(f"{r.name}.a", f"{r.name}.c")
     formula2 = Equals(f"{r.name}.a", f"{r.name}.b")
@@ -28,7 +28,7 @@ def test_and():
 
 def test_or():
     r = Relation("R")
-    r.attributes = ["a", "b", "c"]
+    r.add_attributes(["a", "b", "c"])
     r.add_rows([["a", "b", "a"], ["d", "e", "f"], ["b", "b", "b"]])
     formula1 = Equals(f"{r.name}.a", f"{r.name}.c")
     formula2 = Equals(f"{r.name}.a", f"{r.name}.b")

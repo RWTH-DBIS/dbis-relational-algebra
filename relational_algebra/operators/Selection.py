@@ -29,7 +29,9 @@ class Selection(ra.Operator):
         relation = self.children[0].evaluate(sql_con)
         # create the new relation
         new_relation = ra.Relation(relation.name)
-        new_relation.attributes = relation.attributes
+        new_relation.add_attributes(
+            relation.get_attribute_names(relation.attributes), add_name=False
+        )
         # add the rows
         for row in relation.rows:
             if self.condition.evaluate(row):

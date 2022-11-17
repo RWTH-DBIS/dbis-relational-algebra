@@ -39,7 +39,7 @@ class Intersection(ra.Operator):
             )
         # create the new relation
         new_relation = ra.Relation(left_relation.name)
-        new_relation.attributes = attributes
+        new_relation.add_attributes(attributes)
         # add the rows
         for left_row in [tuple(row) for row in left_relation.rows]:
             if left_row in [tuple(row) for row in right_relation.rows]:
