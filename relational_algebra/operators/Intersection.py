@@ -22,3 +22,22 @@ class Intersection(ra.Operator):
     @typechecked
     def __repr__(self) -> str:
         return f"({self.children[0]} \\cap {self.children[1]})"
+
+    @typechecked
+    def evaluate(self) -> ra.Relation:
+        left_relation = self.children[0].evaluate()
+        right_relation = self.children[1].evaluate()
+        # check if union compatible
+        attributes = left_relation.union_compatibility(right_relation)
+        if attributes is None:
+            raise ValueError(
+                f"The relations {left_relation.name} and {right_relation.name} are not union compatible"
+            )
+        # create the new relation
+        new_relation = ra.Relation(left_relation.name)
+        new_relation.attributes = attributes
+        # add the rows
+        for left_row in [tuple(row) for row in left_relation.rows]:
+            if left_row in [tuple(row) for row in right_relation.rows]:
+                new_relation.add_row(left_row)
+        return new_relation

@@ -69,6 +69,40 @@ class Operator(metaclass=NumpyDocstringInheritanceMeta):
         return ra.CrossProduct(self, other)
 
     @typechecked
+    def __and__(self, other: Operator) -> Operator:
+        """
+        Returns the intersection of two operators
+
+        Parameters
+        ----------
+        other : Operator
+            The operator to intersect with the current operator
+
+        Returns
+        -------
+        Operator
+            The intersection of two operators
+        """
+        return ra.Intersection(self, other)
+
+    @typechecked
+    def __or__(self, other: Operator) -> Operator:
+        """
+        Returns the union of two operators
+
+        Parameters
+        ----------
+        other : Operator
+            The operator to union with the current operator
+
+        Returns
+        -------
+        Operator
+            The union of two operators
+        """
+        return ra.Union(self, other)
+
+    @typechecked
     def union(self, other: Operator) -> Operator:
         """
         Returns the union of two operators
