@@ -5,7 +5,7 @@ from setuptools import setup
 class Version(object):
     name = "relational_algebra"
     description = "RWTH Aachen Computer Science i5/dbis assets for Lecture Datenbanken und Informationssysteme"
-    version = "1.0.0"
+    version = "1.0.1"
 
 
 # The directory containing this file
@@ -27,8 +27,9 @@ setup(
     license="Apache",
     classifiers=[
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     packages=["relational_algebra"],
     include_package_data=True,
-    install_requires=["docstring_inheritance", "six", "typeguard"],
+    install_requires=["docstring_inheritance", "typeguard"],
 )
