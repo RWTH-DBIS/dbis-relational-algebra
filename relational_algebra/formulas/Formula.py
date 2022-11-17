@@ -1,7 +1,9 @@
 from __future__ import annotations
-from abc import ABC, ABCMeta, abstractclassmethod
-from typeguard import typechecked
+
+from abc import abstractclassmethod
+
 from docstring_inheritance import NumpyDocstringInheritanceMeta
+from typeguard import typechecked
 
 import relational_algebra as ra
 

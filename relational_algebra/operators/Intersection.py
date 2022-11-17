@@ -1,4 +1,8 @@
 from __future__ import annotations
+
+import sqlite3
+from typing import Optional
+
 from typeguard import typechecked
 
 import relational_algebra as ra
@@ -24,9 +28,9 @@ class Intersection(ra.Operator):
         return f"({self.children[0]} \\cap {self.children[1]})"
 
     @typechecked
-    def evaluate(self) -> ra.Relation:
-        left_relation = self.children[0].evaluate()
-        right_relation = self.children[1].evaluate()
+    def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
+        left_relation = self.children[0].evaluate(sql_con)
+        right_relation = self.children[1].evaluate(sql_con)
         # check if union compatible
         attributes = left_relation.union_compatibility(right_relation)
         if attributes is None:

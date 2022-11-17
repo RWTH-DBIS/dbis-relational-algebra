@@ -1,4 +1,8 @@
 from __future__ import annotations
+
+import sqlite3
+from typing import Optional
+
 from typeguard import typechecked
 
 import relational_algebra as ra
@@ -26,8 +30,8 @@ class Rename(ra.Operator):
             return f"\\rho_{{{','.join(tmp)}}}({self.children[0]})"
 
     @typechecked
-    def evaluate(self) -> ra.Relation:
-        relation = self.children[0].evaluate()
+    def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
+        relation = self.children[0].evaluate(sql_con)
 
         if isinstance(self.mapping, str):
             # rename the relation

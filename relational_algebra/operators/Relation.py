@@ -1,7 +1,10 @@
 from __future__ import annotations
+
+import sqlite3
+from typing import Iterable, Optional
+
 from typeguard import typechecked
 
-from typing import Optional, Iterable
 import relational_algebra as ra
 
 
@@ -28,7 +31,17 @@ class Relation(ra.Operator):
         return f"(\\text{{{self.name}}})"
 
     @typechecked
-    def evaluate(self) -> Relation:
+    def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> Relation:
+        if sql_con is None:
+            return self
+
+        # get the attributes
+        cursor = sql_con.cursor()
+        cursor.execute(f"PRAGMA table_info({self.name})")
+        self.attributes = [row[1] for row in cursor.fetchall()]
+        # get the rows
+        cursor.execute(f"SELECT * FROM {self.name}")
+        self.add_rows(cursor.fetchall())
         return self
 
     @typechecked
@@ -124,6 +137,52 @@ class Relation(ra.Operator):
         return result
 
     @typechecked
+    def get_minimal_attribute_name(self, attribute: str) -> Optional[str]:
+        """
+        Returns the minimal attribute name (i.e. the attribute name without the relation name)
+
+        Parameters
+        ----------
+        attribute : str
+            The attribute name
+
+        Returns
+        -------
+        Optional[str]
+            The minimal attribute name
+        """
+        result = self.get_attribute_name(attribute)
+        if result is None:
+            return None
+        if "." in result:
+            return result.split(".")[-1]
+        return result
+
+    @typechecked
+    def get_minimal_attribute_names(
+        self, attributes: list[str] | tuple[str]
+    ) -> Optional[list[str]]:
+        """
+        Returns the minimal attribute names (i.e. the attribute names without the relation names)
+
+        Parameters
+        ----------
+        attributes : list[str]
+            The attribute names
+
+        Returns
+        -------
+        Optional[list[str]]
+            The minimal attribute names
+        """
+        result = [
+            self.get_minimal_attribute_name(attribute) for attribute in attributes
+        ]
+        if None in result:
+            return None
+        return result
+
+    @typechecked
     def __getitem__(self, attributes: str | tuple[str]) -> Relation:
         """
         Returns a projection of the relation
@@ -178,9 +237,11 @@ class Relation(ra.Operator):
         if len(self.attributes) != len(other.attributes):
             return None
         for attr1, attr2 in zip(self.attributes, other.attributes):
-            if self.get_attribute_name(attr1) != other.get_attribute_name(attr2):
+            attr1_minimal = self.get_minimal_attribute_name(attr1)
+            attr2_minimal = other.get_minimal_attribute_name(attr2)
+            if attr1_minimal != attr2_minimal or attr1 is None or attr2 is None:
                 return None
-        return self.get_attribute_names(self.attributes)
+        return self.get_minimal_attribute_names(self.attributes)
 
 
 class RelationEntry:

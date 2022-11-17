@@ -1,7 +1,11 @@
 from __future__ import annotations
-from abc import ABC, ABCMeta, abstractclassmethod
-from typeguard import typechecked
+
+import sqlite3
+from abc import abstractclassmethod
+from typing import Optional
+
 from docstring_inheritance import NumpyDocstringInheritanceMeta
+from typeguard import typechecked
 
 import relational_algebra as ra
 
@@ -67,6 +71,23 @@ class Operator(metaclass=NumpyDocstringInheritanceMeta):
             The cross product of two operators
         """
         return ra.CrossProduct(self, other)
+
+    @typechecked
+    def __truediv__(self, other: Operator) -> Operator:
+        """
+        Returns the division of two operators
+
+        Parameters
+        ----------
+        other : Operator
+            The operator to divide the current operator by
+
+        Returns
+        -------
+        Operator
+            The division of two operators
+        """
+        return ra.Division(self, other)
 
     @typechecked
     def __and__(self, other: Operator) -> Operator:
@@ -137,7 +158,7 @@ class Operator(metaclass=NumpyDocstringInheritanceMeta):
         return ra.Intersection(self, other)
 
     @typechecked
-    def evaluate(self) -> ra.Relation:
+    def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
         """
         Evaluates the operator
 

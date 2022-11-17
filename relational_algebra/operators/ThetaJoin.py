@@ -1,4 +1,8 @@
 from __future__ import annotations
+
+import sqlite3
+from typing import Optional
+
 from typeguard import typechecked
 
 import relational_algebra as ra
@@ -28,9 +32,9 @@ class ThetaJoin(ra.Operator):
         return f"({self.children[0]} \\bowtie_{self.formula} {self.children[1]})"
 
     @typechecked
-    def evaluate(self) -> ra.Relation:
-        left_relation = self.children[0].evaluate()
-        right_relation = self.children[1].evaluate()
+    def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
+        left_relation = self.children[0].evaluate(sql_con)
+        right_relation = self.children[1].evaluate(sql_con)
         left_attributes = left_relation.attributes
         right_attributes = right_relation.attributes
         # create new ordered list of attributes

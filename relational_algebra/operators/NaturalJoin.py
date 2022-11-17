@@ -1,4 +1,8 @@
 from __future__ import annotations
+
+import sqlite3
+from typing import Optional
+
 from typeguard import typechecked
 
 import relational_algebra as ra
@@ -24,14 +28,17 @@ class NaturalJoin(ra.Operator):
         return f"({self.children[0]} \\bowtie {self.children[1]})"
 
     @typechecked
-    def evaluate(self) -> ra.Relation:
-        left_relation = self.children[0].evaluate()
-        right_relation = self.children[1].evaluate()
+    def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
+        left_relation = self.children[0].evaluate(sql_con)
+        right_relation = self.children[1].evaluate(sql_con)
         # determine attribute names
         left_attributes = left_relation.get_attribute_names(left_relation.attributes)
         right_attributes = right_relation.get_attribute_names(right_relation.attributes)
         # determine common attributes
-        common_attributes = set(left_attributes).intersection(right_attributes)
+        common_attributes = list()
+        for attribute in left_attributes:
+            if attribute in right_attributes:
+                common_attributes.append(attribute)
         # determine new attribute names
         new_attributes = list(left_attributes)
         for attribute in right_attributes:

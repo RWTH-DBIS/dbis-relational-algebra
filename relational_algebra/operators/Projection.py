@@ -1,4 +1,8 @@
 from __future__ import annotations
+
+import sqlite3
+from typing import Optional
+
 from typeguard import typechecked
 
 import relational_algebra as ra
@@ -27,6 +31,6 @@ class Projection(ra.Operator):
         return f"\\prod_{{{','.join(self.attributes)}}}({self.children[0]})"
 
     @typechecked
-    def evaluate(self) -> ra.Relation:
-        child_relation = self.children[0].evaluate()
+    def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
+        child_relation = self.children[0].evaluate(sql_con)
         return child_relation[tuple(self.attributes)]

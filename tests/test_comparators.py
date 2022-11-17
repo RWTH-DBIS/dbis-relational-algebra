@@ -1,6 +1,6 @@
 import pytest
-from relational_algebra import *
 
+from relational_algebra import *
 
 ##########
 # Equals #
