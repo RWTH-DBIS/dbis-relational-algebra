@@ -19,3 +19,15 @@ class Selection(ra.Operator):
     @typechecked
     def __repr__(self) -> str:
         return f"\\sigma_{{{self.condition}}}({self.children[0]})"
+
+    @typechecked
+    def evaluate(self) -> ra.Relation:
+        relation = self.children[0].evaluate()
+        # create the new relation
+        new_relation = ra.Relation(relation.name)
+        new_relation.attributes = relation.attributes
+        # add the rows
+        for row in relation.rows:
+            if self.condition.evaluate(row):
+                new_relation.add_row(row)
+        return new_relation

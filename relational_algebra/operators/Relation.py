@@ -89,7 +89,7 @@ class Relation(ra.Operator):
                 candidates.append(attr)
             if f"{self.name}.{attr}".lower() == attribute.lower():
                 candidates.append(attr)
-            if "." in attribute:
+            if "." in attr:
                 if attr.split(".")[-1].lower() == attribute.lower():
                     candidates.append(attr)
 
@@ -217,7 +217,7 @@ class RelationEntry:
     @typechecked
     def __eq__(self, other: any) -> bool:
         if isinstance(other, RelationEntry):
-            return self.relation == other.relation and self.row == other.row
+            return tuple(self.row) == tuple(other.row)
         if isinstance(other, tuple | list):
             return tuple(self.row) == tuple(other)
         return False

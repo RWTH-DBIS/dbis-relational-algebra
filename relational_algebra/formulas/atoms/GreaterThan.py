@@ -33,6 +33,7 @@ class GreaterThan(ra.Formula):
                 left_is_attr = True
             except KeyError:
                 left_is_attr = False
+                left_value = self.left
 
         right_is_attr = False
         right_value = self.right
@@ -42,6 +43,7 @@ class GreaterThan(ra.Formula):
                 right_is_attr = True
             except KeyError:
                 right_value = False
+                right_value = self.right
 
         if not left_is_attr and not right_is_attr:
             raise ValueError(

@@ -26,3 +26,35 @@ class ThetaJoin(ra.Operator):
     @typechecked
     def __repr__(self) -> str:
         return f"({self.children[0]} \\bowtie_{self.formula} {self.children[1]})"
+
+    @typechecked
+    def evaluate(self) -> ra.Relation:
+        left_relation = self.children[0].evaluate()
+        right_relation = self.children[1].evaluate()
+        left_attributes = left_relation.attributes
+        right_attributes = right_relation.attributes
+        # create new ordered list of attributes
+        new_attributes = list()
+        for attribute in left_attributes:
+            new_attributes.append(f"{left_relation.name}.{attribute}")
+        for attribute in right_attributes:
+            new_attributes.append(f"{right_relation.name}.{attribute}")
+        # create the new relation
+        tmp_relation = ra.Relation("")
+        tmp_relation.attributes = new_attributes
+        # add the rows
+        for left_row in left_relation.rows:
+            for right_row in right_relation.rows:
+                new_row = list()
+                for attribute in left_attributes:
+                    new_row.append(left_row[attribute])
+                for attribute in right_attributes:
+                    new_row.append(right_row[attribute])
+                tmp_relation.add_row(new_row)
+        # filter the rows
+        new_relation = ra.Relation("")
+        new_relation.attributes = new_attributes
+        for row in tmp_relation.rows:
+            if self.formula.evaluate(row):
+                new_relation.add_row(row)
+        return new_relation
