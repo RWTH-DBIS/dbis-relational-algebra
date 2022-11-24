@@ -43,7 +43,12 @@ class Rename(ra.Operator):
                 for name in names.split("+"):
                     if name != relation.name:
                         old_names.append(name)
-                new_attributes.append(f"{'+'.join(old_names)}.{attr}")
+
+                if len(old_names) == 0:
+                    new_attribute = attr
+                else:
+                    new_attribute = f"{'+'.join(old_names)}.{attr}"
+                new_attributes.append(new_attribute)
             new_relation.add_attributes(new_attributes)
             # add the rows
             new_relation.add_rows(relation.rows)
