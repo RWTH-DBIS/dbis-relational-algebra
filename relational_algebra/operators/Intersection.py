@@ -37,11 +37,17 @@ class Intersection(ra.Operator):
             raise ValueError(
                 f"The relations {left_relation.name} and {right_relation.name} are not union compatible"
             )
+        attributes = list(
+            map(lambda attribute: f"{left_relation.name}.{attribute}", attributes)
+        )
         # create the new relation
         new_relation = ra.Relation(left_relation.name)
-        new_relation.add_attributes(attributes)
+        left_dataframe = left_relation.dataframe.rename(
+            columns=dict(zip(left_relation.attributes, attributes))
+        )
+        right_dataframe = right_relation.dataframe.rename(
+            columns=dict(zip(right_relation.attributes, attributes))
+        )
         # add the rows
-        for left_row in [tuple(row) for row in left_relation.rows]:
-            if left_row in [tuple(row) for row in right_relation.rows]:
-                new_relation.add_row(left_row)
+        new_relation.dataframe = left_dataframe.merge(right_dataframe, how="inner")
         return new_relation

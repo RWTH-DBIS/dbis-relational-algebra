@@ -16,7 +16,7 @@ from relational_algebra.operators.Intersection import Intersection
 from relational_algebra.operators.LeftSemiJoin import LeftSemiJoin
 from relational_algebra.operators.NaturalJoin import NaturalJoin
 from relational_algebra.operators.Projection import Projection
-from relational_algebra.operators.Relation import Relation, RelationEntry
+from relational_algebra.operators.Relation import Relation
 from relational_algebra.operators.Rename import Rename
 from relational_algebra.operators.RightSemiJoin import RightSemiJoin
 from relational_algebra.operators.Selection import Selection

@@ -3,7 +3,7 @@ import pytest
 from relational_algebra import *
 
 
-def test_disjuct_attributes():
+def test_disjoint_attributes():
     r1 = Relation("R1")
     r2 = Relation("R2")
     r1.add_attributes(["a", "b"])

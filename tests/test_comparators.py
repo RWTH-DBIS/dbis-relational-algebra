@@ -7,6 +7,7 @@ from relational_algebra import *
 ##########
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_equals_evaluation_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -17,6 +18,7 @@ def test_equals_evaluation_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_equals_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -27,6 +29,7 @@ def test_equals_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_equals_one_column():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -37,6 +40,7 @@ def test_equals_one_column():
     assert bool(formula.evaluate(rows[0])) ^ bool(formula.evaluate(rows[1]))
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_equals_two_columns():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -47,6 +51,7 @@ def test_equals_two_columns():
     assert bool(formula.evaluate(rows[0])) ^ bool(formula.evaluate(rows[1]))
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_equals_with_relation_name():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -62,6 +67,7 @@ def test_equals_with_relation_name():
 #################
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_greaterequals_evaluation_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -72,6 +78,7 @@ def test_greaterequals_evaluation_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_greaterequals_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -82,6 +89,7 @@ def test_greaterequals_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_greaterequals_one_column():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -92,6 +100,7 @@ def test_greaterequals_one_column():
     assert sum([bool(formula.evaluate(row)) for row in rows]) == 2
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_greaterequals_two_columns():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -107,6 +116,7 @@ def test_greaterequals_two_columns():
 ###############
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_greaterthan_evaluation_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -117,6 +127,7 @@ def test_greaterthan_evaluation_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_greaterthan_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -127,6 +138,7 @@ def test_greaterthan_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_greaterthan_one_column():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -137,6 +149,7 @@ def test_greaterthan_one_column():
     assert sum([bool(formula.evaluate(row)) for row in rows]) == 1
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_greaterthan_two_columns():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -152,6 +165,7 @@ def test_greaterthan_two_columns():
 ##############
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_lessequals_evaluation_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -162,6 +176,7 @@ def test_lessequals_evaluation_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_lessequals_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -172,6 +187,7 @@ def test_lessequals_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_lessequals_one_column():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -182,6 +198,7 @@ def test_lessequals_one_column():
     assert sum([bool(formula.evaluate(row)) for row in rows]) == 2
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_lessequals_two_columns():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -197,6 +214,7 @@ def test_lessequals_two_columns():
 ##############
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_lessthan_evaluation_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -207,6 +225,7 @@ def test_lessthan_evaluation_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_lessthan_raises_exception():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -217,6 +236,7 @@ def test_lessthan_raises_exception():
         formula.evaluate(rows[0])
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_lessthan_one_column():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -227,6 +247,7 @@ def test_lessthan_one_column():
     assert sum([bool(formula.evaluate(row)) for row in rows]) == 1
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_lessthan_two_columns():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])

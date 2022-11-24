@@ -32,5 +32,5 @@ setup(
     ],
     packages=["relational_algebra"],
     include_package_data=True,
-    install_requires=["docstring_inheritance", "typeguard"],
+    install_requires=["docstring_inheritance", "typeguard", "pandas"],
 )

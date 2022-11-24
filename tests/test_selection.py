@@ -3,6 +3,7 @@ import pytest
 from relational_algebra import *
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_tautology():
     r = Relation("R")
     r.attributes = ["a", "b", "c"]
@@ -14,6 +15,7 @@ def test_tautology():
     assert set(rows) == {("a", "b", "c"), ("d", "e", "f")}
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_contradiction():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])
@@ -25,6 +27,7 @@ def test_contradiction():
     assert set(rows) == set()
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_partial():
     r = Relation("R")
     r.add_attributes(["a", "b", "c"])

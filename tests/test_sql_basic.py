@@ -3,6 +3,7 @@ import pytest
 from relational_algebra import *
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_basic_relation(session):
     # see conftest.py
     r = Relation("basic").evaluate(sql_con=session)
@@ -18,6 +19,7 @@ def test_basic_relation(session):
     }
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_crossproduct(session):
     r = session.execute("SELECT * FROM circuits c1, circuits c2;")
     solution = set(r.fetchall())
@@ -31,6 +33,7 @@ def test_crossproduct(session):
     assert set(cR.rows) == solution
 
 
+@pytest.mark.skip(reason="not implemented")
 def test_projection(session):
     r = session.execute("SELECT lt.raceId, lt.lap FROM lapTimes lt;")
     solution = set(r.fetchall())

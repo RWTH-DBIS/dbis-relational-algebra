@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+import pandas as pd
 from typing import Iterable, Optional
 
 from typeguard import typechecked
@@ -23,8 +24,7 @@ class Relation(ra.Operator):
         """
         super().__init__(children=[])
         self.name = name
-        self.attributes = list()
-        self.rows = set()
+        self.dataframe = pd.DataFrame()
 
     @typechecked
     def __repr__(self) -> str:
@@ -38,7 +38,7 @@ class Relation(ra.Operator):
         # get the attributes
         cursor = sql_con.cursor()
         cursor.execute(f"PRAGMA table_info({self.name})")
-        self.attributes = [f"{self.name}.{row[1]}" for row in cursor.fetchall()]
+        self.add_attributes([row[1] for row in cursor.fetchall()], add_name=True)
         # get the rows
         cursor.execute(f"SELECT * FROM {self.name}")
         self.add_rows(cursor.fetchall())
@@ -62,7 +62,7 @@ class Relation(ra.Operator):
                 attribute = f"{self.name}.{attribute}"
             else:
                 attribute = f"{self.name}+{attribute}"
-        self.attributes.append(attribute)
+        self.dataframe[attribute] = pd.Series(dtype=object)
 
     @typechecked
     def add_attributes(self, attributes: Iterable[str], add_name: bool = True) -> None:
@@ -81,36 +81,39 @@ class Relation(ra.Operator):
 
     @typechecked
     def add_row(
-        self, row: tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES] | RelationEntry
+        self, row: tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]
     ) -> None:
         """
         Adds a row to the relation
 
         Parameters
         ----------
-        row : tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES] | RelationEntry
+        row : tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]
             The row to add to the relation
         """
         row = list(row)
-        if len(self.attributes) != len(row):
+        if len(list(self.dataframe.columns)) != len(row):
             raise Exception(
-                f"Row ({row}) does not have the same number of attributes ({self.attributes}) as the relation {self.name}"
+                f"Row ({row}) does not have the same number of attributes ({list(self.dataframe.columns)}) as the relation {self.name}"
             )
-        self.rows.add(RelationEntry(self, row))
+        self.dataframe = pd.concat(
+            [pd.DataFrame([row], columns=self.dataframe.columns), self.dataframe]
+        )
+        self.dataframe.drop_duplicates(inplace=True)
 
     @typechecked
     def add_rows(
         self,
-        rows: list[tuple[ra.PRIMITIVE_TYPES] | RelationEntry]
-        | set[tuple[ra.PRIMITIVE_TYPES] | RelationEntry]
-        | list[list[ra.PRIMITIVE_TYPES] | RelationEntry],
+        rows: list[tuple[ra.PRIMITIVE_TYPES]]
+        | set[tuple[ra.PRIMITIVE_TYPES]]
+        | list[list[ra.PRIMITIVE_TYPES]],
     ) -> None:
         """
         Adds multiple rows to the relation
 
         Parameters
         ----------
-        rows : list[tuple[ra.PRIMITIVE_TYPES] | RelationEntry] | set[tuple[ra.PRIMITIVE_TYPES] | RelationEntry] | list[list[ra.PRIMITIVE_TYPES] | RelationEntry]
+        rows : list[tuple[ra.PRIMITIVE_TYPES]] | set[tuple[ra.PRIMITIVE_TYPES]] | list[list[ra.PRIMITIVE_TYPES]]
             The rows to add to the relation
         """
         for row in rows:
@@ -133,12 +136,12 @@ class Relation(ra.Operator):
         """
         candidates = list()
         if "." not in attribute:
-            for attr in self.attributes:
+            for attr in list(self.dataframe.columns):
                 if attr.split(".")[-1].lower() == attribute.lower():
                     candidates.append(attr)
         else:
             na, at = attribute.split(".")
-            for attr in self.attributes:
+            for attr in list(self.dataframe.columns):
                 names, a = attr.split(".")
                 any = False
                 for n in names.split("+"):
@@ -225,13 +228,13 @@ class Relation(ra.Operator):
         return result
 
     @typechecked
-    def __getitem__(self, attributes: str | tuple[str]) -> Relation:
+    def __getitem__(self, attributes: str | tuple[str] | list[str]) -> Relation:
         """
         Returns a projection of the relation
 
         Parameters
         ----------
-        attributes : str | tuple[str]
+        attributes : str | tuple[str] | list[str]
             The attributes to project
 
         Returns
@@ -243,6 +246,8 @@ class Relation(ra.Operator):
             attr = list()
             attr.append(attributes)
             attributes = attr
+        if isinstance(attributes, tuple):
+            attributes = list(attributes)
 
         attributes = self.get_attribute_names(attributes)
         if attributes is None:
@@ -250,14 +255,8 @@ class Relation(ra.Operator):
 
         # create new relation using the same name and values of given attributes only
         new_relation = Relation(self.name)
-        new_relation.add_attributes(self.get_minimal_attribute_names(attributes))
-        new_relation.rows = set()
-        for row in self.rows:
-            new_relation.rows.add(
-                RelationEntry(
-                    new_relation, [row[attribute] for attribute in attributes]
-                )
-            )
+        new_relation.add_attributes(attributes, add_name=False)
+        new_relation.add_rows(self.dataframe[attributes].values.tolist())
         return new_relation
 
     @typechecked
@@ -276,92 +275,20 @@ class Relation(ra.Operator):
         Optional[str]
             The names of the attributes
         """
-        if len(self.attributes) != len(other.attributes):
+        if len(list(self.dataframe.columns)) != len(list(other.dataframe.columns)):
             return None
-        for attr1, attr2 in zip(self.attributes, other.attributes):
+        for attr1, attr2 in zip(
+            list(self.dataframe.columns), list(other.dataframe.columns)
+        ):
             attr1_minimal = self.get_minimal_attribute_name(attr1)
             attr2_minimal = other.get_minimal_attribute_name(attr2)
             if attr1_minimal != attr2_minimal or attr1 is None or attr2 is None:
                 return None
-        return self.get_minimal_attribute_names(self.attributes)
-
-
-class RelationEntry:
-    """
-    This class represents a entry of a relation
-    """
+        return self.get_minimal_attribute_names(list(self.dataframe.columns))
 
     @typechecked
-    def __init__(
-        self,
-        relation: Relation,
-        row: tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES],
-    ) -> None:
-        """
-        Parameters
-        ----------
-        relation : Relation
-            The relation of the entry
-        row : tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]
-            The row of the entry
-        """
-        assert len(relation.attributes) == len(row)
-        self.relation = relation
-        self.row = row
-
-    @typechecked
-    def __repr__(self) -> str:
-        return f"({','.join([str(value) for value in self.row])})"
-
-    @typechecked
-    def __hash__(self) -> int:
-        return hash(tuple(self.row))
-
-    @typechecked
-    def __eq__(self, other: any) -> bool:
-        if isinstance(other, RelationEntry):
-            return tuple(self.row) == tuple(other.row)
-        if isinstance(other, tuple | list):
-            return tuple(self.row) == tuple(other)
-        return False
-
-    @typechecked
-    def __getitem__(
-        self, attributes: str | tuple[str]
-    ) -> ra.PRIMITIVE_TYPES | tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]:
-        """
-        Returns the value of the attributes
-
-        Parameters
-        ----------
-        attributes : str | tuple[str]
-            The attributes to get the value of
-
-        Returns
-        -------
-        ra.PRIMITIVE_TYPES | tuple[ra.PRIMITIVE_TYPES]
-            The value of the attributes
-        """
-        if isinstance(attributes, str):
-            attr = list()
-            attr.append(attributes)
-            attributes = attr
-
-        attribute_names = self.relation.get_attribute_names(attributes)
-        if attribute_names is None:
-            raise KeyError(f"Attribute not found in: {attributes}")
-
-        result = []
-        for attribute_name in attribute_names:
-            result.append(self.row[self.relation.attributes.index(attribute_name)])
-        if len(result) == 1:
-            return result[0]
-        return result
-
-    @typechecked
-    def __tuple__(self) -> tuple[ra.PRIMITIVE_TYPES]:
-        return tuple(self.row)
-
-    @typechecked
-    def __iter__(self) -> Iterable[ra.PRIMITIVE_TYPES]:
-        return iter(self.row)
+    def __getattr__(self, attr) -> any:
+        if attr == "attributes":
+            return list(self.dataframe.columns)
+        if attr == "rows":
+            return set(map(tuple, self.dataframe.values.tolist()))
