@@ -46,6 +46,8 @@ class Division(ra.Operator):
                 new_attributes.append(attribute)
         # create operation
         division = ra.Projection(left_relation, new_attributes) - ra.Projection(
-            (ra.Projection(left_relation, new_attributes) * right_relation) - left_relation, new_attributes
+            (ra.Projection(left_relation, new_attributes) * right_relation)
+            - left_relation,
+            new_attributes,
         )
         return division.evaluate(sql_con)

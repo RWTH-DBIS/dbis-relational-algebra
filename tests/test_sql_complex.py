@@ -3,7 +3,6 @@ import pytest
 from relational_algebra import *
 
 
-@pytest.mark.skip(reason="not implemented")
 def test_track_refs(session):
     r = session.execute("SELECT circuitRef FROM circuits;")
     solution = set(r.fetchall())
@@ -15,7 +14,6 @@ def test_track_refs(session):
     assert set(cR.rows) == solution
 
 
-@pytest.mark.skip(reason="not implemented")
 def test_tracks_germany(session):
     r = session.execute(
         "SELECT Name, Location FROM circuits WHERE Country = 'Germany';"
@@ -31,7 +29,6 @@ def test_tracks_germany(session):
     assert set(ra.rows) == solution
 
 
-@pytest.mark.skip(reason="not implemented")
 def test_tracks_northeast_southwest(session):
     r = session.execute(
         "SELECT * FROM circuits WHERE (Lat >= 0 AND Lng >= 0) OR (Lat < 0 AND Lng < 0);"
