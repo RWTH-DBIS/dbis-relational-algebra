@@ -38,31 +38,34 @@ class NaturalJoin(ra.Operator):
         right_attributes = right_relation.get_minimal_attribute_names(
             right_relation.attributes
         )
-        # determine common attributes
+        # determine new attribute names and name mapping
+        left_attribute_mapping = dict()
+        right_attribute_mapping = dict()
         common_attributes = list()
         for attribute in left_attributes:
-            if attribute in right_attributes:
-                common_attributes.append(attribute)
-        # determine new attribute names
-        new_attributes = list(left_attributes)
+            new_attribute = f"{left_relation.name}+{right_relation.name}.{attribute}"
+            left_attribute_mapping[
+                left_relation.get_attribute_name(attribute)
+            ] = new_attribute
         for attribute in right_attributes:
-            if attribute not in common_attributes:
-                new_attributes.append(attribute)
+            new_attribute = f"{left_relation.name}+{right_relation.name}.{attribute}"
+            right_attribute_mapping[
+                right_relation.get_attribute_name(attribute)
+            ] = new_attribute
+            if new_attribute in left_attribute_mapping.values():
+                common_attributes.append(new_attribute)
+
         # create new relation
         new_relation = ra.Relation(f"{left_relation.name}+{right_relation.name}")
-        new_relation.add_attributes(new_attributes)
         # add rows
-        for left_row in left_relation.rows:
-            for right_row in right_relation.rows:
-                add_attribute = True
-                for attribute in common_attributes:
-                    if left_row[attribute] != right_row[attribute]:
-                        add_attribute = False
-                        break
-                if add_attribute:
-                    new_row = list(left_row)
-                    for attribute in right_attributes:
-                        if attribute not in common_attributes:
-                            new_row.append(right_row[attribute])
-                    new_relation.add_row(new_row)
+        left_dataframe = left_relation.dataframe.rename(columns=left_attribute_mapping)
+        right_dataframe = right_relation.dataframe.rename(
+            columns=right_attribute_mapping
+        )
+        if len(common_attributes) == 0:
+            new_relation.dataframe = left_dataframe.merge(right_dataframe, how="cross")
+        else:
+            new_relation.dataframe = left_dataframe.merge(
+                right_dataframe, how="inner", on=common_attributes
+            )
         return new_relation

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typeguard import typechecked
+import pandas as pd
 
 import relational_algebra as ra
 
@@ -36,5 +37,7 @@ class And(ra.Formula):
         return f"{left} \\land {right}"
 
     @typechecked
-    def evaluate(self, entry: ra.RelationEntry) -> bool:
-        return self.children[0].evaluate(entry) and self.children[1].evaluate(entry)
+    def to_series(self, relation: ra.Relation) -> pd.Series:
+        return self.children[0].to_series(relation) & self.children[1].to_series(
+            relation
+        )

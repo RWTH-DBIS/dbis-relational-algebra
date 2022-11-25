@@ -44,23 +44,17 @@ def test_projection(session):
     assert set(cR.rows) == solution
 
 
-@pytest.mark.skip(reason="Taking way too long")
 def test_big_naturaljoin(session):
-    from datetime import datetime
-
-    now = datetime.now()
     r = session.execute(
         "SELECT * FROM drivers NATURAL JOIN lapTimes NATURAL JOIN (SELECT raceId,year,round,circuitId,name,date FROM races);"
     )
     solution = set(r.fetchall())
-    print(datetime.now() - now)
     assert len(solution) > 0
 
-    now = datetime.now()
     cR = NaturalJoin(
         NaturalJoin("drivers", "lapTimes"),
         Projection("races", ["raceId", "year", "round", "circuitId", "name", "date"]),
     ).evaluate(sql_con=session)
-    print(datetime.now() - now)
+
     assert len(cR.rows) == len(solution)
     assert set(cR.rows) == solution

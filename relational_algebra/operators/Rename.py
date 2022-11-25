@@ -33,10 +33,13 @@ class Rename(ra.Operator):
     def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
         relation = self.children[0].evaluate(sql_con)
 
+        new_relation = None
+        attribute_mapping = dict()
+
+        # create the new attribute mapping
         if isinstance(self.mapping, str):
             # rename the relation
             new_relation = ra.Relation(self.mapping)
-            new_attributes = list()
             for attribute in relation.get_attribute_names(relation.attributes):
                 names, attr = attribute.split(".")
                 old_names = list()
@@ -45,51 +48,47 @@ class Rename(ra.Operator):
                         old_names.append(name)
 
                 if len(old_names) == 0:
-                    new_attribute = attr
+                    new_attribute = f"{new_relation.name}.{attr}"
                 else:
+                    old_names.append(new_relation.name)
                     new_attribute = f"{'+'.join(old_names)}.{attr}"
-                new_attributes.append(new_attribute)
-            new_relation.add_attributes(new_attributes)
-            # add the rows
-            new_relation.add_rows(relation.rows)
-            return new_relation
-
-        # find correct attribute names
-        new_mapping = {}
-        for key, value in self.mapping.items():
-            # check if key is attribute in the relation
-            key = relation.get_attribute_name(key)
-            if key is None:
-                raise KeyError(
-                    f"The attribute {key} is not in the relation {relation.name}"
-                )
-            # check if value is not already an attribute in the relation
-            v = relation.get_attribute_name(value)
-            if v is not None:
-                raise ValueError(
-                    f"The attribute {value} is already in the relation {relation.name}"
-                )
-            # check if key is not already in the mapping
-            if key in new_mapping.keys():
-                raise KeyError(f"The attribute {key} is already in the mapping")
-            # check if value is not already in the mapping
-            if value in new_mapping.values():
-                raise ValueError(f"The attribute {value} is already in the mapping")
-            # rename the attribute
-            new_mapping[key] = value
+                attribute_mapping[attribute] = new_attribute
+        else:
+            # rename the attributes
+            new_relation = ra.Relation(relation.name)
+            new_mapping = {}
+            for key, value in self.mapping.items():
+                # check if key is attribute in the relation
+                key = relation.get_attribute_name(key)
+                if key is None:
+                    raise KeyError(
+                        f"The attribute {key} is not in the relation {relation.name}"
+                    )
+                # check if value is not already an attribute in the relation
+                v = relation.get_attribute_name(value)
+                if v is not None:
+                    raise ValueError(
+                        f"The attribute {value} is already in the relation {relation.name}"
+                    )
+                # check if key is not already in the mapping
+                if key in new_mapping.keys():
+                    raise KeyError(f"The attribute {key} is already in the mapping")
+                # check if value is not already in the mapping
+                if value in new_mapping.values():
+                    raise ValueError(f"The attribute {value} is already in the mapping")
+                # rename the attribute
+                new_mapping[key] = f"{new_relation.name}.{value}"
+            for attribute in relation.get_attribute_names(relation.attributes):
+                if attribute in new_mapping.keys():
+                    new_attribute = new_mapping[attribute]
+                else:
+                    new_attribute = attribute
+                attribute_mapping[attribute] = new_attribute
 
         # create the new relation
-        new_relation = ra.Relation(relation.name)
-        # rename the attributes
-        new_attributes = list()
-        for attribute in relation.attributes:
-            if relation.get_attribute_name(attribute) not in new_mapping.keys():
-                new_attributes.append(attribute)
-            else:
-                new_attributes.append(
-                    new_mapping[relation.get_attribute_name(attribute)]
-                )
-        new_relation.add_attributes(new_attributes)
-        # add the rows
-        new_relation.add_rows(relation.rows)
+        new_relation.add_attributes(attribute_mapping.values())
+
+        # add rows
+        new_relation.dataframe = relation.dataframe.rename(columns=attribute_mapping)
+
         return new_relation

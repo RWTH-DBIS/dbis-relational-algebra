@@ -5,7 +5,7 @@ from relational_algebra import *
 
 def test_tautology():
     r = Relation("R")
-    r.attributes = ["a", "b", "c"]
+    r.add_attributes(["a", "b", "c"])
     r.add_rows([["a", "b", "c"], ["d", "e", "f"]])
     tautology_formula = Equals("a", "a")
     s = Selection(r, tautology_formula)

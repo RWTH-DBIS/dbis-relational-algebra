@@ -10,8 +10,12 @@ def test_not():
     formula = Equals(f"{r.name}.a", f"{r.name}.c")
     not_formula = Not(formula)
     rows = list(r.rows)
-    for row in rows:
-        assert bool(formula.evaluate(row)) ^ bool(not_formula.evaluate(row))
+    result = formula.selection(r)
+    not_result = not_formula.selection(r)
+    # disjunct
+    assert set(result.rows) | set(not_result.rows) == set(rows)
+    # conjunct
+    assert set(result.rows) & set(not_result.rows) == set()
 
 
 def test_and():
@@ -21,9 +25,9 @@ def test_and():
     formula1 = Equals(f"{r.name}.a", f"{r.name}.c")
     formula2 = Equals(f"{r.name}.a", f"{r.name}.b")
     and_formula = And(formula1, formula2)
-    rows = list(r.rows)
+    result = and_formula.selection(r)
     # and_formula true for exactly one row
-    assert sum([bool(and_formula.evaluate(row)) for row in rows]) == 1
+    assert len(result.rows) == 1
 
 
 def test_or():
@@ -33,6 +37,6 @@ def test_or():
     formula1 = Equals(f"{r.name}.a", f"{r.name}.c")
     formula2 = Equals(f"{r.name}.a", f"{r.name}.b")
     or_formula = Or(formula1, formula2)
-    rows = list(r.rows)
+    result = or_formula.selection(r)
     # or_formula true for exactly two rows
-    assert sum([bool(or_formula.evaluate(row)) for row in rows]) == 2
+    assert len(result.rows) == 2

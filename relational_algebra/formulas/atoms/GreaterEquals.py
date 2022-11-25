@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typeguard import typechecked
+import pandas as pd
 
 import relational_algebra as ra
 
@@ -25,26 +26,24 @@ class GreaterEquals(ra.Formula):
         return f"{self.left} \\geq {self.right}"
 
     @typechecked
-    def evaluate(self, entry: ra.RelationEntry) -> bool:
+    def to_series(self, relation: ra.Relation) -> pd.Series:
         left_is_attr = False
         left_value = self.left
         if isinstance(self.left, str):
-            try:
-                left_value = entry[self.left]
+            # check if left is an attribute
+            left_attr = relation.get_attribute_name(self.left)
+            if left_attr is not None:
                 left_is_attr = True
-            except KeyError:
-                left_is_attr = False
-                left_value = self.left
+                left_value = relation.dataframe[left_attr]
 
         right_is_attr = False
         right_value = self.right
         if isinstance(self.right, str):
-            try:
-                right_value = entry[self.right]
+            # check if right is an attribute
+            right_attr = relation.get_attribute_name(self.right)
+            if right_attr is not None:
                 right_is_attr = True
-            except KeyError:
-                right_value = False
-                right_value = self.right
+                right_value = relation.dataframe[right_attr]
 
         if not left_is_attr and not right_is_attr:
             raise ValueError(

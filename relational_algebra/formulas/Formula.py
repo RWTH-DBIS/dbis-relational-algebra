@@ -4,6 +4,7 @@ from abc import abstractclassmethod
 
 from docstring_inheritance import NumpyDocstringInheritanceMeta
 from typeguard import typechecked
+import pandas as pd
 
 import relational_algebra as ra
 
@@ -37,19 +38,38 @@ class Formula(metaclass=NumpyDocstringInheritanceMeta):
         pass
 
     @typechecked
+    def selection(self, relation: ra.Relation) -> ra.Relation:
+        """
+        Returns a relation with the selection applied.
+
+        Parameters
+        ----------
+        relation : ra.Relation
+            The relation to apply the selection to.
+
+        Returns
+        -------
+        ra.Relation
+            The relation with the selection applied.
+        """
+        new_relation = ra.Relation(relation.name)
+        new_relation.dataframe = relation.dataframe[self.to_series(relation)]
+        return new_relation
+
+    @typechecked
     @abstractclassmethod
-    def evaluate(self, entry: ra.RelationEntry) -> bool:
+    def to_series(self, relation: ra.Relation) -> pd.Series:
         """
         Evaluates whether the entry satifies the formula
 
         Parameters
         ----------
-        entry : RelationEntry
-            The entry to evaluate the formula for
+        relation : Relation
+            The Relation to convert to a pd.Series
 
         Returns
         -------
-        bool
-            The result of the evaluation
+        pd.Series
+            A pd.Series
         """
         pass

@@ -44,10 +44,10 @@ class Division(ra.Operator):
         for attribute in left_attributes:
             if attribute not in right_attributes:
                 new_attributes.append(attribute)
-        # project left relation
-        left_relation_projected = ra.Projection(left_relation, new_attributes)
         # create operation
-        division = left_relation_projected - ra.Projection(
-            (left_relation_projected * right_relation) - left_relation, new_attributes
+        division = ra.Projection(left_relation, new_attributes) - ra.Projection(
+            (ra.Projection(left_relation, new_attributes) * right_relation)
+            - left_relation,
+            new_attributes,
         )
         return division.evaluate(sql_con)
