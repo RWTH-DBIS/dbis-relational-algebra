@@ -28,12 +28,4 @@ class Selection(ra.Operator):
     def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
         relation = self.children[0].evaluate(sql_con)
         # create the new relation
-        new_relation = ra.Relation(relation.name)
-        new_relation.add_attributes(
-            relation.get_attribute_names(relation.attributes), add_name=False
-        )
-        # add the rows
-        for row in relation.rows:
-            if self.condition.evaluate(row):
-                new_relation.add_row(row)
-        return new_relation
+        return self.condition.selection(relation)

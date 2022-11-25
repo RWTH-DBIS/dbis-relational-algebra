@@ -45,10 +45,10 @@ class Difference(ra.Operator):
         new_relation = ra.Relation(left_relation.name)
         left_dataframe = left_relation.dataframe.rename(
             columns=dict(zip(left_relation.attributes, attributes))
-        )
+        ).drop_duplicates()
         right_dataframe = right_relation.dataframe.rename(
             columns=dict(zip(right_relation.attributes, attributes))
-        )
+        ).drop_duplicates()
         # add the rows
         new_relation.dataframe = pd.concat(
             [left_dataframe, right_dataframe, right_dataframe]

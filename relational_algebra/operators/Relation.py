@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 import pandas as pd
+import numpy as np
 from typing import Iterable, Optional
 
 from typeguard import typechecked
@@ -96,10 +97,13 @@ class Relation(ra.Operator):
             raise Exception(
                 f"Row ({row}) does not have the same number of attributes ({list(self.dataframe.columns)}) as the relation {self.name}"
             )
-        self.dataframe = pd.concat(
-            [pd.DataFrame([row], columns=self.dataframe.columns), self.dataframe]
+        self.dataframe = (
+            pd.concat(
+                [pd.DataFrame([row], columns=self.dataframe.columns), self.dataframe]
+            )
+            .drop_duplicates()
+            .replace({np.nan: None})
         )
-        self.dataframe.drop_duplicates(inplace=True)
 
     @typechecked
     def add_rows(
@@ -116,8 +120,19 @@ class Relation(ra.Operator):
         rows : list[tuple[ra.PRIMITIVE_TYPES]] | set[tuple[ra.PRIMITIVE_TYPES]] | list[list[ra.PRIMITIVE_TYPES]]
             The rows to add to the relation
         """
-        for row in rows:
-            self.add_row(row)
+        # for row in rows:
+        #    if len(list(self.dataframe.columns)) != len(row):
+        #        raise Exception(
+        #            f"Row ({row}) does not have the same number of attributes ({list(self.dataframe.columns)}) as the relation {self.name}"
+        #        )
+
+        self.dataframe = (
+            pd.concat(
+                [pd.DataFrame(rows, columns=self.dataframe.columns), self.dataframe]
+            )
+            .drop_duplicates()
+            .replace({np.nan: None})
+        )
 
     @typechecked
     def get_attribute_name(self, attribute: str) -> Optional[str]:
@@ -255,8 +270,7 @@ class Relation(ra.Operator):
 
         # create new relation using the same name and values of given attributes only
         new_relation = Relation(self.name)
-        new_relation.add_attributes(attributes, add_name=False)
-        new_relation.add_rows(self.dataframe[attributes].values.tolist())
+        new_relation.dataframe = self.dataframe[attributes]
         return new_relation
 
     @typechecked

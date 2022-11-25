@@ -3,7 +3,6 @@ import pytest
 from relational_algebra import *
 
 
-@pytest.mark.skip(reason="not implemented")
 def test_thetajoin_attributes():
     r1 = Relation("R1")
     r2 = Relation("R2")
@@ -19,7 +18,6 @@ def test_thetajoin_attributes():
     ]
 
 
-@pytest.mark.skip(reason="not implemented")
 def test_thetajoin_rows():
     r1 = Relation("R1")
     r2 = Relation("R2")
@@ -36,7 +34,6 @@ def test_thetajoin_rows():
     }
 
 
-@pytest.mark.skip(reason="not implemented")
 def test_thetajoin_numerical():
     r1 = Relation("R1")
     r2 = Relation("R2")
@@ -69,7 +66,6 @@ def test_thetajoin_numerical():
 
 
 # Theta Join produces the same result as a cross product followed by a selection
-@pytest.mark.skip(reason="not implemented")
 def test_crossproduct_selection():
     r1 = Relation("R1")
     r2 = Relation("R2")
