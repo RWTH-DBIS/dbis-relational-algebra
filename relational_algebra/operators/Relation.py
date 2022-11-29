@@ -32,6 +32,27 @@ class Relation(ra.Operator):
         return f"(\\text{{{self.name}}})"
 
     @typechecked
+    def tabulate(self) -> str:
+        """
+        Return the relation as a Markdown table
+
+        Returns
+        -------
+        str
+            The relation as a Markdown table
+        """
+        table = ""
+        table += (
+            "| "
+            + " | ".join(self.get_minimal_attribute_names(self.attributes))
+            + " |\n"
+        )
+        table += "| " + " | ".join(["---"] * len(self.attributes)) + " |\n"
+        for row in self.dataframe.itertuples(index=False):
+            table += "| " + " | ".join([str(x) for x in row]) + " |\n"
+        return table
+
+    @typechecked
     def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> Relation:
         if sql_con is None:
             return self
