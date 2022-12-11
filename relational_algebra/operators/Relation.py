@@ -57,6 +57,9 @@ class Relation(ra.Operator):
         if sql_con is None:
             return self
 
+        if len(self.rows) > 0:
+            return self
+
         # get the attributes
         cursor = sql_con.cursor()
         cursor.execute(f"PRAGMA table_info({self.name})")

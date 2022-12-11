@@ -31,6 +31,13 @@ def test_crossproduct(session):
     assert set(cR.rows) == solution
 
 
+def test_basic_division(session):
+    cR = Division("basic", "basic").evaluate(sql_con=session)
+
+    assert len(cR.rows) == len({()})
+    assert set(cR.rows) == {()}
+
+
 def test_projection(session):
     r = session.execute("SELECT lt.raceId, lt.lap FROM lapTimes lt;")
     solution = set(r.fetchall())
