@@ -38,6 +38,9 @@ class NaturalJoin(ra.Operator):
         right_attributes = right_relation.get_minimal_attribute_names(
             right_relation.attributes
         )
+        # check if attributes are not null
+        assert left_attributes is not None
+        assert right_attributes is not None
         # determine new attribute names and name mapping
         left_attribute_mapping = dict()
         right_attribute_mapping = dict()
@@ -57,6 +60,7 @@ class NaturalJoin(ra.Operator):
 
         # create new relation
         new_relation = ra.Relation(f"{left_relation.name}+{right_relation.name}")
+        new_relation.was_evaluated = True
         # add rows
         left_dataframe = left_relation.dataframe.rename(columns=left_attribute_mapping)
         right_dataframe = right_relation.dataframe.rename(

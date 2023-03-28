@@ -33,6 +33,7 @@ class LeftSemiJoin(ra.Operator):
         right_relation = self.children[1].evaluate(sql_con)
         # get attributes from left relation
         left_attributes = left_relation.get_attribute_names(left_relation.attributes)
+        assert left_attributes is not None
         return ra.Projection(
             ra.NaturalJoin(left_relation, right_relation), left_attributes
-        ).evaluate(sql_con)
+        ).evaluate()

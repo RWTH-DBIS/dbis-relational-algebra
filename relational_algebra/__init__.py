@@ -23,5 +23,5 @@ from relational_algebra.operators.Selection import Selection
 from relational_algebra.operators.ThetaJoin import ThetaJoin
 from relational_algebra.operators.Union import Union
 
-PRIMITIVE_TYPES = int | float | str | bool
+PRIMITIVE_TYPES = int | float | str | bool | None
 ATOM_TYPES = Equals | GreaterEquals | GreaterThan | LessEquals | LessThan

@@ -53,6 +53,7 @@ class Formula(metaclass=NumpyDocstringInheritanceMeta):
             The relation with the selection applied.
         """
         new_relation = ra.Relation(relation.name)
+        new_relation.was_evaluated = True
         new_relation.dataframe = relation.dataframe[self.to_series(relation)]
         return new_relation
 

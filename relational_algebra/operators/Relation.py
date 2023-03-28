@@ -26,6 +26,7 @@ class Relation(ra.Operator):
         super().__init__(children=[])
         self.name = name
         self.dataframe = pd.DataFrame()
+        self.was_evaluated = False
 
     @typechecked
     def __repr__(self) -> str:
@@ -55,9 +56,10 @@ class Relation(ra.Operator):
     @typechecked
     def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> Relation:
         if sql_con is None:
+            self.was_evaluated = True
             return self
 
-        if len(self.rows) > 0:
+        if self.was_evaluated:
             return self
 
         # get the attributes
@@ -67,6 +69,7 @@ class Relation(ra.Operator):
         # get the rows
         cursor.execute(f"SELECT * FROM {self.name}")
         self.add_rows(cursor.fetchall())
+        self.was_evaluated = True
         return self
 
     @typechecked
@@ -88,6 +91,7 @@ class Relation(ra.Operator):
             else:
                 attribute = f"{self.name}+{attribute}"
         self.dataframe[attribute] = pd.Series(dtype=object)
+        self.was_evaluated = True
 
     @typechecked
     def add_attributes(self, attributes: Iterable[str], add_name: bool = True) -> None:
@@ -106,7 +110,7 @@ class Relation(ra.Operator):
 
     @typechecked
     def add_row(
-        self, row: tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]
+        self, row: tuple[ra.PRIMITIVE_TYPES, ...] | list[ra.PRIMITIVE_TYPES]
     ) -> None:
         """
         Adds a row to the relation
@@ -128,12 +132,13 @@ class Relation(ra.Operator):
             .drop_duplicates()
             .replace({np.nan: None})
         )
+        self.was_evaluated = True
 
     @typechecked
     def add_rows(
         self,
-        rows: list[tuple[ra.PRIMITIVE_TYPES]]
-        | set[tuple[ra.PRIMITIVE_TYPES]]
+        rows: list[tuple[ra.PRIMITIVE_TYPES, ...]]
+        | set[tuple[ra.PRIMITIVE_TYPES, ...]]
         | list[list[ra.PRIMITIVE_TYPES]],
     ) -> None:
         """
@@ -154,7 +159,7 @@ class Relation(ra.Operator):
             pd.concat(
                 [pd.DataFrame(rows, columns=self.dataframe.columns), self.dataframe]
             )
-            .drop_duplicates()
+            .drop_duplicates(inplace=False)
             .replace({np.nan: None})
         )
 
@@ -200,7 +205,7 @@ class Relation(ra.Operator):
 
     @typechecked
     def get_attribute_names(
-        self, attributes: list[str] | tuple[str]
+        self, attributes: list[str] | tuple[str, ...]
     ) -> Optional[list[str]]:
         """
         Returns the names of the attributes
@@ -244,7 +249,7 @@ class Relation(ra.Operator):
 
     @typechecked
     def get_minimal_attribute_names(
-        self, attributes: list[str] | tuple[str]
+        self, attributes: list[str] | tuple[str, ...]
     ) -> Optional[list[str]]:
         """
         Returns the minimal attribute names (i.e. the attribute names without the relation names)
@@ -267,7 +272,7 @@ class Relation(ra.Operator):
         return result
 
     @typechecked
-    def __getitem__(self, attributes: str | tuple[str] | list[str]) -> Relation:
+    def __getitem__(self, attributes: str | tuple[str, ...] | list[str]) -> Relation:
         """
         Returns a projection of the relation
 
@@ -288,13 +293,14 @@ class Relation(ra.Operator):
         if isinstance(attributes, tuple):
             attributes = list(attributes)
 
-        attributes = self.get_attribute_names(attributes)
-        if attributes is None:
+        attribute_names = self.get_attribute_names(attributes)
+        if attribute_names is None:
             raise KeyError(f"Attribute not found in: {attributes}")
 
         # create new relation using the same name and values of given attributes only
         new_relation = Relation(self.name)
-        new_relation.dataframe = self.dataframe[attributes]
+        new_relation.was_evaluated = True
+        new_relation.dataframe = self.dataframe[attribute_names]
         return new_relation
 
     @typechecked
@@ -324,9 +330,10 @@ class Relation(ra.Operator):
                 return None
         return self.get_minimal_attribute_names(list(self.dataframe.columns))
 
-    @typechecked
-    def __getattr__(self, attr) -> any:
-        if attr == "attributes":
-            return list(self.dataframe.columns)
-        if attr == "rows":
-            return set(map(tuple, self.dataframe.values.tolist()))
+    @property
+    def attributes(self) -> list[str]:
+        return list(self.dataframe.columns)
+
+    @property
+    def rows(self) -> set[tuple[ra.PRIMITIVE_TYPES, ...]]:
+        return set(map(tuple, self.dataframe.values.tolist()))

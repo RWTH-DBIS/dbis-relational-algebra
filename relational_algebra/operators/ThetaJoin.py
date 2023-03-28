@@ -37,4 +37,4 @@ class ThetaJoin(ra.Operator):
         right_relation = self.children[1].evaluate(sql_con)
         return ra.Selection(
             ra.CrossProduct(left_relation, right_relation), self.formula
-        ).evaluate(sql_con)
+        ).evaluate()

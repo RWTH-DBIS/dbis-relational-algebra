@@ -43,12 +43,13 @@ class Difference(ra.Operator):
         )
         # create the new relation
         new_relation = ra.Relation(left_relation.name)
+        new_relation.was_evaluated = True
         left_dataframe = left_relation.dataframe.rename(
             columns=dict(zip(left_relation.attributes, attributes))
-        ).drop_duplicates()
+        ).drop_duplicates(inplace=False)
         right_dataframe = right_relation.dataframe.rename(
             columns=dict(zip(right_relation.attributes, attributes))
-        ).drop_duplicates()
+        ).drop_duplicates(inplace=False)
         # add the rows
         new_relation.dataframe = pd.concat(
             [left_dataframe, right_dataframe, right_dataframe]
