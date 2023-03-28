@@ -117,7 +117,7 @@ class Relation(ra.Operator):
 
         Parameters
         ----------
-        row : tuple[ra.PRIMITIVE_TYPES] | list[ra.PRIMITIVE_TYPES]
+        row : tuple[ra.PRIMITIVE_TYPES, ...] | list[ra.PRIMITIVE_TYPES]
             The row to add to the relation
         """
         row = list(row)
@@ -129,7 +129,7 @@ class Relation(ra.Operator):
             pd.concat(
                 [pd.DataFrame([row], columns=self.dataframe.columns), self.dataframe]
             )
-            .drop_duplicates()
+            .drop_duplicates(inplace=False)
             .replace({np.nan: None})
         )
         self.was_evaluated = True
@@ -146,7 +146,7 @@ class Relation(ra.Operator):
 
         Parameters
         ----------
-        rows : list[tuple[ra.PRIMITIVE_TYPES]] | set[tuple[ra.PRIMITIVE_TYPES]] | list[list[ra.PRIMITIVE_TYPES]]
+        rows : list[tuple[ra.PRIMITIVE_TYPES, ...]] | set[tuple[ra.PRIMITIVE_TYPES, ...]] | list[list[ra.PRIMITIVE_TYPES]]
             The rows to add to the relation
         """
         # for row in rows:
@@ -212,7 +212,7 @@ class Relation(ra.Operator):
 
         Parameters
         ----------
-        attributes : list[str]
+        attributes : list[str] | tuple[str, ...]
             The attributes
 
         Returns
@@ -256,7 +256,7 @@ class Relation(ra.Operator):
 
         Parameters
         ----------
-        attributes : list[str]
+        attributes : list[str] | tuple[str, ...]
             The attribute names
 
         Returns
@@ -278,7 +278,7 @@ class Relation(ra.Operator):
 
         Parameters
         ----------
-        attributes : str | tuple[str] | list[str]
+        attributes : str | tuple[str, ...] | list[str]
             The attributes to project
 
         Returns
