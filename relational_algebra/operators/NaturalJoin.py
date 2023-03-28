@@ -60,6 +60,7 @@ class NaturalJoin(ra.Operator):
 
         # create new relation
         new_relation = ra.Relation(f"{left_relation.name}+{right_relation.name}")
+        new_relation.was_evaluated = True
         # add rows
         left_dataframe = left_relation.dataframe.rename(columns=left_attribute_mapping)
         right_dataframe = right_relation.dataframe.rename(

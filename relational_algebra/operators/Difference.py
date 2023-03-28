@@ -43,6 +43,7 @@ class Difference(ra.Operator):
         )
         # create the new relation
         new_relation = ra.Relation(left_relation.name)
+        new_relation.was_evaluated = True
         left_dataframe = left_relation.dataframe.rename(
             columns=dict(zip(left_relation.attributes, attributes))
         ).drop_duplicates(inplace=False)

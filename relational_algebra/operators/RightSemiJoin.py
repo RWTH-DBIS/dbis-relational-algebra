@@ -36,4 +36,4 @@ class RightSemiJoin(ra.Operator):
         assert right_attributes is not None
         return ra.Projection(
             ra.NaturalJoin(left_relation, right_relation), right_attributes
-        ).evaluate(sql_con)
+        ).evaluate()

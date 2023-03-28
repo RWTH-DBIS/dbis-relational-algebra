@@ -34,7 +34,7 @@ class CrossProduct(ra.Operator):
 
         # create the new relation
         new_relation = ra.Relation(f"{left_relation.name}+{right_relation.name}")
-
+        new_relation.was_evaluated = True
         # add the rows
         new_relation.dataframe = left_relation.dataframe.merge(
             right_relation.dataframe, how="cross"

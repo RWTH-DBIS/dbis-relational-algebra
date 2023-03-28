@@ -53,4 +53,4 @@ class Division(ra.Operator):
             - left_relation,
             new_attributes,
         )
-        return division.evaluate(sql_con)
+        return division.evaluate()

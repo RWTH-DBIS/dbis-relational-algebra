@@ -89,6 +89,8 @@ class Rename(ra.Operator):
                     new_attribute = attribute
                 attribute_mapping[attribute] = new_attribute
 
+        new_relation.was_evaluated = True
+
         # create the new relation
         new_relation.add_attributes(attribute_mapping.values())
 

@@ -26,6 +26,7 @@ class Relation(ra.Operator):
         super().__init__(children=[])
         self.name = name
         self.dataframe = pd.DataFrame()
+        self.was_evaluated = False
 
     @typechecked
     def __repr__(self) -> str:
@@ -55,9 +56,10 @@ class Relation(ra.Operator):
     @typechecked
     def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> Relation:
         if sql_con is None:
+            self.was_evaluated = True
             return self
 
-        if len(self.rows) > 0:
+        if self.was_evaluated:
             return self
 
         # get the attributes
@@ -67,6 +69,7 @@ class Relation(ra.Operator):
         # get the rows
         cursor.execute(f"SELECT * FROM {self.name}")
         self.add_rows(cursor.fetchall())
+        self.was_evaluated = True
         return self
 
     @typechecked
@@ -88,6 +91,7 @@ class Relation(ra.Operator):
             else:
                 attribute = f"{self.name}+{attribute}"
         self.dataframe[attribute] = pd.Series(dtype=object)
+        self.was_evaluated = True
 
     @typechecked
     def add_attributes(self, attributes: Iterable[str], add_name: bool = True) -> None:
@@ -128,6 +132,7 @@ class Relation(ra.Operator):
             .drop_duplicates()
             .replace({np.nan: None})
         )
+        self.was_evaluated = True
 
     @typechecked
     def add_rows(
@@ -294,6 +299,7 @@ class Relation(ra.Operator):
 
         # create new relation using the same name and values of given attributes only
         new_relation = Relation(self.name)
+        new_relation.was_evaluated = True
         new_relation.dataframe = self.dataframe[attribute_names]
         return new_relation
 
