@@ -15,7 +15,7 @@ class Projection(ra.Operator):
 
     @typechecked
     def __init__(
-        self, child: ra.Operator | str, attributes: str | tuple[str] | list[str]
+        self, child: ra.Operator | str, attributes: str | tuple[str, ...] | list[str]
     ) -> None:
         if isinstance(child, str):
             child = ra.Relation(child)
