@@ -38,6 +38,9 @@ class NaturalJoin(ra.Operator):
         right_attributes = right_relation.get_minimal_attribute_names(
             right_relation.attributes
         )
+        # check if attributes are not null
+        assert left_attributes is not None
+        assert right_attributes is not None
         # determine new attribute names and name mapping
         left_attribute_mapping = dict()
         right_attribute_mapping = dict()

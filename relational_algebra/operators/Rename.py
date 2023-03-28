@@ -40,7 +40,9 @@ class Rename(ra.Operator):
         if isinstance(self.mapping, str):
             # rename the relation
             new_relation = ra.Relation(self.mapping)
-            for attribute in relation.get_attribute_names(relation.attributes):
+            relation_attribute_names = relation.get_attribute_names(relation.attributes)
+            assert relation_attribute_names is not None
+            for attribute in relation_attribute_names:
                 names, attr = attribute.split(".")
                 old_names = list()
                 for name in names.split("+"):
@@ -78,7 +80,9 @@ class Rename(ra.Operator):
                     raise ValueError(f"The attribute {value} is already in the mapping")
                 # rename the attribute
                 new_mapping[key] = f"{new_relation.name}.{value}"
-            for attribute in relation.get_attribute_names(relation.attributes):
+            relation_attribute_names = relation.get_attribute_names(relation.attributes)
+            assert relation_attribute_names is not None
+            for attribute in relation_attribute_names:
                 if attribute in new_mapping.keys():
                     new_attribute = new_mapping[attribute]
                 else:

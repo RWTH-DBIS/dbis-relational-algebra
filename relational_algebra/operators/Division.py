@@ -39,6 +39,9 @@ class Division(ra.Operator):
         right_attributes = right_relation.get_minimal_attribute_names(
             right_relation.attributes
         )
+        # check if attributes are not null
+        assert left_attributes is not None
+        assert right_attributes is not None
         # get new attributes
         new_attributes = list()
         for attribute in left_attributes:

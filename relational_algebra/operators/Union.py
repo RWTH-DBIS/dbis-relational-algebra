@@ -49,6 +49,8 @@ class Union(ra.Operator):
         right_dataframe = right_relation.dataframe.rename(
             columns=dict(zip(right_relation.attributes, attributes))
         )
+        assert left_dataframe is not None
+        assert right_dataframe is not None
         # add the rows
         new_relation.dataframe = pd.concat(
             [left_dataframe, right_dataframe]
