@@ -324,9 +324,10 @@ class Relation(ra.Operator):
                 return None
         return self.get_minimal_attribute_names(list(self.dataframe.columns))
 
-    @typechecked
-    def __getattr__(self, attr) -> any:
-        if attr == "attributes":
-            return list(self.dataframe.columns)
-        if attr == "rows":
-            return set(map(tuple, self.dataframe.values.tolist()))
+    @property
+    def attributes(self):
+        return list(self.dataframe.columns)
+
+    @property
+    def rows(self):
+        return set(map(tuple, self.dataframe.values.tolist()))
