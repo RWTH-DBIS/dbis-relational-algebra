@@ -28,7 +28,7 @@ class Projection(ra.Operator):
 
     @typechecked
     def __repr__(self) -> str:
-        return f"\\prod_{{{','.join(self.attributes)}}}({self.children[0]})"
+        return f"\\pi_{{{','.join(self.attributes)}}}({self.children[0]})"
 
     @typechecked
     def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:

@@ -29,7 +29,7 @@ class ThetaJoin(ra.Operator):
 
     @typechecked
     def __repr__(self) -> str:
-        return f"({self.children[0]} \\bowtie_{self.formula} {self.children[1]})"
+        return f"({self.children[0]} \\bowtie_{{{self.formula}}} {self.children[1]})"
 
     @typechecked
     def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:

@@ -34,7 +34,7 @@ class Or(ra.Formula):
         elif not isinstance(self.children[1], ra.Not | ra.ATOM_TYPES):
             right = f"({right})"
 
-        return f"{left} \\land {right}"
+        return f"{left} \\lor {right}"
 
     @typechecked
     def to_series(self, relation: ra.Relation) -> pd.Series:
