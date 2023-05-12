@@ -54,7 +54,9 @@ class Formula(metaclass=NumpyDocstringInheritanceMeta):
         """
         new_relation = ra.Relation(relation.name)
         new_relation.was_evaluated = True
-        new_relation.dataframe = relation.dataframe[self.to_series(relation)]
+        new_relation.dataframe = relation.dataframe[self.to_series(relation)].copy()
+        # drop duplicates
+        new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation
 
     @typechecked

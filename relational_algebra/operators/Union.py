@@ -44,10 +44,10 @@ class Union(ra.Operator):
         # create the new relation
         new_relation = ra.Relation(left_relation.name)
         new_relation.was_evaluated = True
-        left_dataframe = left_relation.dataframe.rename(
+        left_dataframe = left_relation.dataframe.copy().rename(
             columns=dict(zip(left_relation.attributes, attributes))
         )
-        right_dataframe = right_relation.dataframe.rename(
+        right_dataframe = right_relation.dataframe.copy().rename(
             columns=dict(zip(right_relation.attributes, attributes))
         )
         assert left_dataframe is not None
@@ -55,5 +55,7 @@ class Union(ra.Operator):
         # add the rows
         new_relation.dataframe = pd.concat(
             [left_dataframe, right_dataframe]
-        ).drop_duplicates()
+        ).drop_duplicates(inplace=False)
+        # drop duplicates
+        new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation

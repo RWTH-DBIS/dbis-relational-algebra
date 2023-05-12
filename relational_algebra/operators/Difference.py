@@ -44,14 +44,20 @@ class Difference(ra.Operator):
         # create the new relation
         new_relation = ra.Relation(left_relation.name)
         new_relation.was_evaluated = True
-        left_dataframe = left_relation.dataframe.rename(
-            columns=dict(zip(left_relation.attributes, attributes))
-        ).drop_duplicates(inplace=False)
-        right_dataframe = right_relation.dataframe.rename(
-            columns=dict(zip(right_relation.attributes, attributes))
-        ).drop_duplicates(inplace=False)
+        left_dataframe = (
+            left_relation.dataframe.copy()
+            .rename(columns=dict(zip(left_relation.attributes, attributes)))
+            .drop_duplicates(inplace=False)
+        )
+        right_dataframe = (
+            right_relation.dataframe.copy()
+            .rename(columns=dict(zip(right_relation.attributes, attributes)))
+            .drop_duplicates(inplace=False)
+        )
         # add the rows
         new_relation.dataframe = pd.concat(
             [left_dataframe, right_dataframe, right_dataframe]
         ).drop_duplicates(keep=False)
+        # drop duplicates
+        new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation
