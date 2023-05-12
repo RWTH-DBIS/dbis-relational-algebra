@@ -62,8 +62,10 @@ class NaturalJoin(ra.Operator):
         new_relation = ra.Relation(f"{left_relation.name}+{right_relation.name}")
         new_relation.was_evaluated = True
         # add rows
-        left_dataframe = left_relation.dataframe.rename(columns=left_attribute_mapping)
-        right_dataframe = right_relation.dataframe.rename(
+        left_dataframe = left_relation.dataframe.copy().rename(
+            columns=left_attribute_mapping
+        )
+        right_dataframe = right_relation.dataframe.copy().rename(
             columns=right_attribute_mapping
         )
         if len(common_attributes) == 0:
@@ -72,4 +74,6 @@ class NaturalJoin(ra.Operator):
             new_relation.dataframe = left_dataframe.merge(
                 right_dataframe, how="inner", on=common_attributes
             )
+        # drop duplicates
+        new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation

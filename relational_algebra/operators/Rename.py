@@ -95,6 +95,10 @@ class Rename(ra.Operator):
         new_relation.add_attributes(attribute_mapping.values())
 
         # add rows
-        new_relation.dataframe = relation.dataframe.rename(columns=attribute_mapping)
+        new_relation.dataframe = relation.dataframe.copy().rename(
+            columns=attribute_mapping
+        )
 
+        # drop duplicates
+        new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation

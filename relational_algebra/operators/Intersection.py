@@ -43,12 +43,14 @@ class Intersection(ra.Operator):
         # create the new relation
         new_relation = ra.Relation(left_relation.name)
         new_relation.was_evaluated = True
-        left_dataframe = left_relation.dataframe.rename(
+        left_dataframe = left_relation.dataframe.copy().rename(
             columns=dict(zip(left_relation.attributes, attributes))
         )
-        right_dataframe = right_relation.dataframe.rename(
+        right_dataframe = right_relation.dataframe.copy().rename(
             columns=dict(zip(right_relation.attributes, attributes))
         )
         # add the rows
         new_relation.dataframe = left_dataframe.merge(right_dataframe, how="inner")
+        # drop duplicates
+        new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation

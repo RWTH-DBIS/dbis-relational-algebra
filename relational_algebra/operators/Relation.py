@@ -300,7 +300,9 @@ class Relation(ra.Operator):
         # create new relation using the same name and values of given attributes only
         new_relation = Relation(self.name)
         new_relation.was_evaluated = True
-        new_relation.dataframe = self.dataframe[attribute_names]
+        new_relation.dataframe = self.dataframe[attribute_names].copy()
+        # drop duplicates
+        new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation
 
     @typechecked
