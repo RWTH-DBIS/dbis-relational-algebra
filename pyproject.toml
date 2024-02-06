@@ -35,4 +35,5 @@ include_package_data = true
 requires = ['setuptools>=42']
 build-backend = 'setuptools.build_meta'
 
-
+[tool.black]
+required-version = 23
