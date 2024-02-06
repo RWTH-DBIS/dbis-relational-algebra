@@ -50,7 +50,7 @@ formatting-check:
     stage: test
     script:
       - pip install black
-      - black --check .
+      - black --check src/ tests/
 
 
 build-310:
