@@ -3,7 +3,9 @@ from __future__ import annotations
 import sqlite3
 import pandas as pd
 import numpy as np
-from typing import Iterable, Optional
+from typing import Iterable, Optional, List
+
+from collections import Counter, defaultdict
 
 from typeguard import typechecked
 
@@ -16,17 +18,27 @@ class Relation(ra.Operator):
     """
 
     @typechecked
-    def __init__(self, name: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        preferred_prefix: str | list[str] | None = None,
+        preferred_prefix_2: str | list[str] | None = None,
+    ) -> None:
         """
         Parameters
         ----------
         name : str
             The name of the relation
+        preferred_prefix : str | list[str] | None
+            optional alias or list of aliases for disambiguation
+        preferred_prefix_2: str | list[str] | None
+             second optional alias or list of aliases for disambiguation
         """
         super().__init__(children=[])
         self.name = name
         self.dataframe = pd.DataFrame()
         self.was_evaluated = False
+        self.preferred_prefix = combine_prefix(preferred_prefix, preferred_prefix_2)
 
     @typechecked
     def __repr__(self) -> str:
@@ -42,12 +54,49 @@ class Relation(ra.Operator):
         str
             The relation as a Markdown table
         """
+        parsed: list[tuple[str, list[str], str]] = []
+        for attr in self.attributes:
+            parts = attr.split(".")
+            suffix = parts[-1]
+            if len(parts) == 2:
+                tags = parts[0].split("+")
+            else:
+                tags = parts[0].split("+") + [parts[1]]
+            parsed.append((attr, tags, suffix))
+        count = Counter(suffix for _, _, suffix in parsed)
+        groups: dict[str, list[tuple[str, set[str]]]] = defaultdict(list)
+        for full, tags, suffix in parsed:
+            groups[suffix].append((full, set(tags)))
+        if self.preferred_prefix is None:
+            pref_list: list[str] = []
+        elif isinstance(self.preferred_prefix, str):
+            pref_list = [self.preferred_prefix]
+        else:
+            pref_list = self.preferred_prefix
+        out: list[str] = []
+        for full, tags, suffix in parsed:
+            if count[suffix] == 1:
+                out.append(suffix)
+            else:
+                matches = [p for p in pref_list if p in tags]
+                if len(matches) == 1:
+                    pick = matches[0]
+                else:
+                    others = [
+                        other_tags
+                        for other_full, other_tags in groups[suffix]
+                        if other_full != full
+                    ]
+                    pick = None
+                    for tag in reversed(tags):
+                        if all(tag not in oth for oth in others):
+                            pick = tag
+                            break
+                    if pick is None:
+                        pick = "+".join(tags)
+                out.append(f"{pick}.{suffix}")
         table = ""
-        table += (
-            "| "
-            + " | ".join(self.get_minimal_attribute_names(self.attributes))
-            + " |\n"
-        )
+        table += "| " + " | ".join(out) + " |\n"
         table += "| " + " | ".join(["---"] * len(self.attributes)) + " |\n"
         for row in self.dataframe.itertuples(index=False):
             table += "| " + " | ".join([str(x) for x in row]) + " |\n"
@@ -137,9 +186,11 @@ class Relation(ra.Operator):
     @typechecked
     def add_rows(
         self,
-        rows: list[tuple[ra.PRIMITIVE_TYPES, ...]]
-        | set[tuple[ra.PRIMITIVE_TYPES, ...]]
-        | list[list[ra.PRIMITIVE_TYPES]],
+        rows: (
+            list[tuple[ra.PRIMITIVE_TYPES, ...]]
+            | set[tuple[ra.PRIMITIVE_TYPES, ...]]
+            | list[list[ra.PRIMITIVE_TYPES]]
+        ),
     ) -> None:
         """
         Adds multiple rows to the relation
@@ -181,16 +232,19 @@ class Relation(ra.Operator):
         candidates = list()
         if "." not in attribute:
             for attr in list(self.dataframe.columns):
-                if attr.split(".")[-1].lower() == attribute.lower():
+                if attr.split(".", maxsplit=1)[-1].lower() == attribute.lower():
                     candidates.append(attr)
         else:
-            na, at = attribute.split(".")
+            na, at = attribute.split(".", maxsplit=1)
             for attr in list(self.dataframe.columns):
-                names, a = attr.split(".")
+                names, a = attr.split(".", maxsplit=1)
                 any = False
                 for n in names.split("+"):
                     for nn in na.split("+"):
-                        if n.lower() == nn.lower() and a.lower() == at.lower():
+                        if n.lower() == nn.lower() and (
+                            a.lower() == at.lower()
+                            or a.lower() == (attribute.split("+")[-1]).lower()
+                        ):
                             any = True
                 if any:
                     candidates.append(attr)
@@ -198,6 +252,26 @@ class Relation(ra.Operator):
         if len(candidates) == 0:
             return None
         if len(candidates) > 1:
+            uniques = list()
+            for candidate in candidates:
+                if "." in candidate:
+                    names = candidate.split(".", maxsplit=1)[0].split("+")
+                    unique = set(names)
+                    for candidate_compare in list(set(candidates) - set([candidate])):
+                        unique = unique - set(
+                            candidate_compare.split(".", maxsplit=1)[0].split("+")
+                        )
+                    uniques.append(list(unique))
+                else:
+                    raise Exception(
+                        f"Multiple candidates for attribute {attribute}: {candidates}"
+                    )
+            for unique in uniques:
+                for partial_name in unique:
+                    if partial_name in attribute.split(".", maxsplit=1)[0]:
+                        for candidate in candidates:
+                            if partial_name in candidate.split(".", maxsplit=1)[0]:
+                                return candidate
             raise Exception(
                 f"Multiple candidates for attribute {attribute}: {candidates}"
             )
@@ -244,7 +318,7 @@ class Relation(ra.Operator):
         if result is None:
             return None
         if "." in result:
-            return result.split(".")[-1]
+            return result.split(".", maxsplit=1)[-1]
         return result
 
     @typechecked
@@ -339,3 +413,29 @@ class Relation(ra.Operator):
     @property
     def rows(self) -> set[tuple[ra.PRIMITIVE_TYPES, ...]]:
         return set(map(tuple, self.dataframe.values.tolist()))
+
+
+def combine_prefix(
+    a: str | list[str] | None, b: str | list[str] | None
+) -> str | list[str] | None:
+    """
+    Combine two optional prefixes (str or list of str) into a single prefix value.
+    Rules:
+      - None + None -> None
+      - None + str  -> str
+      - str  + str  -> list of unique strings (or single str if same)
+      - str  + list -> list of unique strings
+      - list + list -> list of unique strings
+    """
+    s = set()
+    for x in (a, b):
+        if isinstance(x, str):
+            s.add(x)
+        elif isinstance(x, (list, tuple)):
+            s.update(x)
+
+    if not s:
+        return None
+    if len(s) == 1:
+        return next(iter(s))
+    return list(s)
