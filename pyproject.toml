@@ -1,6 +1,6 @@
 [project]
 name = "dbis-relational-algebra"
-version = "1.1.7"
+version = "1.1.8"
 description = "RWTH Aachen Computer Science i5/dbis assets for Lecture Datenbanken und Informationssysteme"
 authors = [
 	{ name = "DBIS i5 RWTH", email="dbis-vl@dbis.rwth-aachen.de" }
