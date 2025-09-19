@@ -22,6 +22,9 @@ from relational_algebra.operators.RightSemiJoin import RightSemiJoin
 from relational_algebra.operators.Selection import Selection
 from relational_algebra.operators.ThetaJoin import ThetaJoin
 from relational_algebra.operators.Union import Union
+from relational_algebra.operators.FullOuterJoin import FullOuterJoin
+from relational_algebra.operators.LeftOuterJoin import LeftOuterJoin
+from relational_algebra.operators.RightOuterJoin import RightOuterJoin
 
 PRIMITIVE_TYPES = int | float | str | bool | None
 ATOM_TYPES = Equals | GreaterEquals | GreaterThan | LessEquals | LessThan
