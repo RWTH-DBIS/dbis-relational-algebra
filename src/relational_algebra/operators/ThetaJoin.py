@@ -37,37 +37,6 @@ class ThetaJoin(ra.Operator):
     def evaluate(self, sql_con: Optional[sqlite3.Connection] = None) -> ra.Relation:
         left_relation = self.children[0].evaluate(sql_con)
         right_relation = self.children[1].evaluate(sql_con)
-        partial_formulas = re.split(r"(?: \\land | \\lor |\\neg )", str(self.formula))
-        filtered_formulas = [item for item in partial_formulas if item != ""]
-        for entry in filtered_formulas:
-            left_entry, right_entry = re.split(r" (?:=|\\geq|>|\\leq|<) ", entry)
-            left_value_rr = right_relation.get_minimal_attribute_name(left_entry)
-            right_value_rr = right_relation.get_minimal_attribute_name(right_entry)
-            left_value_lr = left_relation.get_minimal_attribute_name(left_entry)
-            right_value_lr = left_relation.get_minimal_attribute_name(right_entry)
-            rr_preferred_prefix = None
-            if (
-                left_entry.split(".", maxsplit=1)[-1]
-                == right_entry.split(".", maxsplit=1)[-1]
-            ):
-                if "." in left_entry:
-                    if left_value_rr is not None:
-                        rr_preferred_prefix = left_entry.split(".")[0]
-                        self.children[1] = ra.Rename(
-                            self.children[1], {left_value_rr: left_entry}
-                        )
-                    if left_value_lr is not None:
-                        left_relation.preferred_prefix = left_entry.split(".")[0]
-                if "." in right_entry:
-                    if right_value_rr is not None:
-                        rr_preferred_prefix = right_entry.split(".")[0]
-                        self.children[1] = ra.Rename(
-                            self.children[1], {right_value_rr: right_entry}
-                        )
-                    if right_value_lr is not None:
-                        left_relation.preferred_prefix = right_entry.split(".")[0]
-        right_relation = self.children[1].evaluate(sql_con)
-        right_relation.preferred_prefix = rr_preferred_prefix
         return ra.Selection(
             ra.CrossProduct(left_relation, right_relation), self.formula
         ).evaluate()

@@ -33,11 +33,7 @@ class CrossProduct(ra.Operator):
         right_relation = self.children[1].evaluate(sql_con)
 
         # create the new relation
-        new_relation = ra.Relation(
-            f"{left_relation.name}+{right_relation.name}",
-            left_relation.preferred_prefix,
-            right_relation.preferred_prefix,
-        )
+        new_relation = ra.Relation(f"{left_relation.name}{right_relation.name}")
         new_relation.was_evaluated = True
         # add the rows
         new_relation.dataframe = left_relation.dataframe.copy().merge(
@@ -45,4 +41,11 @@ class CrossProduct(ra.Operator):
         )
         # drop duplicates
         new_relation.dataframe.drop_duplicates(inplace=True)
+        if list(left_relation.dataframe.columns) == list(
+            right_relation.dataframe.columns
+        ):
+            new_relation.dataframe.columns = [
+                column[:-2] if column.endswith(("_x", "_y")) else column
+                for column in new_relation.dataframe.columns
+            ]
         return new_relation

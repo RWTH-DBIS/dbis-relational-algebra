@@ -18,27 +18,17 @@ class Relation(ra.Operator):
     """
 
     @typechecked
-    def __init__(
-        self,
-        name: str,
-        preferred_prefix: str | list[str] | None = None,
-        preferred_prefix_2: str | list[str] | None = None,
-    ) -> None:
+    def __init__(self, name: str) -> None:
         """
         Parameters
         ----------
         name : str
             The name of the relation
-        preferred_prefix : str | list[str] | None
-            optional alias or list of aliases for disambiguation
-        preferred_prefix_2: str | list[str] | None
-             second optional alias or list of aliases for disambiguation
         """
         super().__init__(children=[])
         self.name = name
         self.dataframe = pd.DataFrame()
         self.was_evaluated = False
-        self.preferred_prefix = combine_prefix(preferred_prefix, preferred_prefix_2)
 
     @typechecked
     def __repr__(self) -> str:
@@ -54,49 +44,12 @@ class Relation(ra.Operator):
         str
             The relation as a Markdown table
         """
-        parsed: list[tuple[str, list[str], str]] = []
-        for attr in self.attributes:
-            parts = attr.split(".")
-            suffix = parts[-1]
-            if len(parts) == 2:
-                tags = parts[0].split("+")
-            else:
-                tags = parts[0].split("+") + [parts[1]]
-            parsed.append((attr, tags, suffix))
-        count = Counter(suffix for _, _, suffix in parsed)
-        groups: dict[str, list[tuple[str, set[str]]]] = defaultdict(list)
-        for full, tags, suffix in parsed:
-            groups[suffix].append((full, set(tags)))
-        if self.preferred_prefix is None:
-            pref_list: list[str] = []
-        elif isinstance(self.preferred_prefix, str):
-            pref_list = [self.preferred_prefix]
-        else:
-            pref_list = self.preferred_prefix
-        out: list[str] = []
-        for full, tags, suffix in parsed:
-            if count[suffix] == 1:
-                out.append(suffix)
-            else:
-                matches = [p for p in pref_list if p in tags]
-                if len(matches) == 1:
-                    pick = matches[0]
-                else:
-                    others = [
-                        other_tags
-                        for other_full, other_tags in groups[suffix]
-                        if other_full != full
-                    ]
-                    pick = None
-                    for tag in reversed(tags):
-                        if all(tag not in oth for oth in others):
-                            pick = tag
-                            break
-                    if pick is None:
-                        pick = "+".join(tags)
-                out.append(f"{pick}.{suffix}")
         table = ""
-        table += "| " + " | ".join(out) + " |\n"
+        table += (
+            "| "
+            + " | ".join(self.get_minimal_attribute_names(self.attributes))
+            + " |\n"
+        )
         table += "| " + " | ".join(["---"] * len(self.attributes)) + " |\n"
         for row in self.dataframe.itertuples(index=False):
             table += "| " + " | ".join([str(x) for x in row]) + " |\n"
@@ -200,11 +153,6 @@ class Relation(ra.Operator):
         rows : list[tuple[ra.PRIMITIVE_TYPES, ...]] | set[tuple[ra.PRIMITIVE_TYPES, ...]] | list[list[ra.PRIMITIVE_TYPES]]
             The rows to add to the relation
         """
-        # for row in rows:
-        #    if len(list(self.dataframe.columns)) != len(row):
-        #        raise Exception(
-        #            f"Row ({row}) does not have the same number of attributes ({list(self.dataframe.columns)}) as the relation {self.name}"
-        #        )
 
         self.dataframe = (
             pd.concat(
@@ -241,11 +189,12 @@ class Relation(ra.Operator):
                 any = False
                 for n in names.split("+"):
                     for nn in na.split("+"):
-                        if n.lower() == nn.lower() and (
-                            a.lower() == at.lower()
-                            or a.lower() == (attribute.split("+")[-1]).lower()
-                        ):
+                        if n.lower() == nn.lower() and a.lower() == at.lower():
                             any = True
+
+                if na.lower() == self.name.lower() and at.lower() == a.lower():
+                    any = True
+
                 if any:
                     candidates.append(attr)
 
@@ -268,9 +217,11 @@ class Relation(ra.Operator):
                     )
             for unique in uniques:
                 for partial_name in unique:
-                    if partial_name in attribute.split(".", maxsplit=1)[0]:
+                    if partial_name in attribute.split(".", maxsplit=1)[0].split("+"):
                         for candidate in candidates:
-                            if partial_name in candidate.split(".", maxsplit=1)[0]:
+                            if partial_name in candidate.split(".", maxsplit=1)[
+                                0
+                            ].split("+"):
                                 return candidate
             raise Exception(
                 f"Multiple candidates for attribute {attribute}: {candidates}"
@@ -413,29 +364,3 @@ class Relation(ra.Operator):
     @property
     def rows(self) -> set[tuple[ra.PRIMITIVE_TYPES, ...]]:
         return set(map(tuple, self.dataframe.values.tolist()))
-
-
-def combine_prefix(
-    a: str | list[str] | None, b: str | list[str] | None
-) -> str | list[str] | None:
-    """
-    Combine two optional prefixes (str or list of str) into a single prefix value.
-    Rules:
-      - None + None -> None
-      - None + str  -> str
-      - str  + str  -> list of unique strings (or single str if same)
-      - str  + list -> list of unique strings
-      - list + list -> list of unique strings
-    """
-    s = set()
-    for x in (a, b):
-        if isinstance(x, str):
-            s.add(x)
-        elif isinstance(x, (list, tuple)):
-            s.update(x)
-
-    if not s:
-        return None
-    if len(s) == 1:
-        return next(iter(s))
-    return list(s)

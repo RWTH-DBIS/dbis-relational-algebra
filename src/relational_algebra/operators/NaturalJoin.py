@@ -59,11 +59,7 @@ class NaturalJoin(ra.Operator):
                 common_attributes.append(new_attribute)
 
         # create new relation
-        new_relation = ra.Relation(
-            f"{left_relation.name}+{right_relation.name}",
-            left_relation.preferred_prefix,
-            right_relation.preferred_prefix,
-        )
+        new_relation = ra.Relation(f"{left_relation.name}{right_relation.name}")
         new_relation.was_evaluated = True
         # add rows
         left_dataframe = left_relation.dataframe.copy().rename(

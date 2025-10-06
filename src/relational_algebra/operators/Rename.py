@@ -39,7 +39,7 @@ class Rename(ra.Operator):
         # create the new attribute mapping
         if isinstance(self.mapping, str):
             # rename the relation
-            new_relation = ra.Relation(self.mapping, relation.preferred_prefix)
+            new_relation = ra.Relation(self.mapping)
             relation_attribute_names = relation.get_attribute_names(relation.attributes)
             assert relation_attribute_names is not None
             for attribute in relation_attribute_names:
@@ -57,7 +57,7 @@ class Rename(ra.Operator):
                 attribute_mapping[attribute] = new_attribute
         else:
             # rename the attributes
-            new_relation = ra.Relation(relation.name, relation.preferred_prefix)
+            new_relation = ra.Relation(relation.name)
             new_mapping = {}
             for key, value in self.mapping.items():
                 # check if key is attribute in the relation

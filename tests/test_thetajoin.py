@@ -13,7 +13,7 @@ def test_thetajoin_attributes():
     assert result.get_attribute_names(result.attributes) == [
         "R1.a",
         "R1.b",
-        "R2.R2.b",
+        "R2.b",
         "R2.c",
     ]
 
@@ -52,7 +52,7 @@ def test_thetajoin_numerical():
         "R1.a",
         "R1.b",
         "R1.c",
-        "R2.R2.b",
+        "R2.b",
         "R2.c",
         "R2.e",
     ]

@@ -31,7 +31,7 @@ def test_intersect():
     r1 = Relation("R1")
     r2 = Relation("R2")
     r1.add_attributes(["a", "b"])
-    r2.add_attributes(["c", "d"])
+    r2.add_attributes(["b", "c"])
     r1.add_rows([["a", "b"], ["d", "e"]])
     r2.add_rows([["c", "d"], ["f", "g"]])
     cp = r1 * r2
@@ -43,3 +43,19 @@ def test_intersect():
         ("d", "e", "c", "d"),
         ("d", "e", "f", "g"),
     }
+
+
+def test_CrossProduct_with_self():
+    r1 = Relation("R1")
+    r1.add_attributes(["a", "b"])
+    r1.add_rows([["a", "b"], ["d", "e"]])
+    cp = r1 * r1
+    result = cp.evaluate()
+    rows = result.rows
+    assert set(rows) == {
+        ("a", "b", "a", "b"),
+        ("a", "b", "d", "e"),
+        ("d", "e", "a", "b"),
+        ("d", "e", "d", "e"),
+    }
+    assert list(result.dataframe.columns) == list(r1.evaluate().dataframe.columns) * 2
