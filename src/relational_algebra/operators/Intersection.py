@@ -54,7 +54,10 @@ class Intersection(ra.Operator):
             columns=dict(zip(right_relation.attributes, attributes))
         )
         # add the rows
-        new_relation.dataframe = left_dataframe.merge(right_dataframe, how="inner")
+        try:
+            new_relation.dataframe = left_dataframe.merge(right_dataframe, how="inner")
+        except ValueError as e:
+            raise ValueError(str(e)[0:-48]) from None
         # drop duplicates
         new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation

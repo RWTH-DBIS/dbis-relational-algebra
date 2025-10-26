@@ -75,9 +75,12 @@ class NaturalJoin(ra.Operator):
         if len(common_attributes) == 0:
             new_relation.dataframe = left_dataframe.merge(right_dataframe, how="cross")
         else:
-            new_relation.dataframe = left_dataframe.merge(
-                right_dataframe, how="inner", on=common_attributes
-            )
+            try:
+                new_relation.dataframe = left_dataframe.merge(
+                    right_dataframe, how="inner", on=common_attributes
+                )
+            except ValueError as e:
+                raise ValueError(str(e)[0:-48]) from None
         # drop duplicates
         new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation

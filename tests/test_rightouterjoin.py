@@ -70,7 +70,7 @@ def test_Different_Attributes():
     t = RightOuterJoin(r1, r2)
     result = t.evaluate()
     assert set(result.get_attribute_names(result.attributes)) == {"R1+R2.a", "R1+R2.b"}
-    expected_rows = {(1, 10), (1, 20), (2, 10), (2, 20)}
+    expected_rows = {("-", 10), ("-", 20)}
     assert set(result.rows) == expected_rows
 
 
@@ -100,4 +100,4 @@ def test_rightouterjoin_typical_case():
         "R1+R2.b",
         "R1+R2.c",
     ]
-    assert set(result.rows) == {(2, "b", "B"), (3, "c", "C"), (4, None, "D")}
+    assert set(result.rows) == {(2, "b", "B"), (3, "c", "C"), (4, "-", "D")}

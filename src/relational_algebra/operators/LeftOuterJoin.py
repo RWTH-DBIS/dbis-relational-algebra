@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pandas as pd
+
 import sqlite3
 from typing import Optional
 
@@ -42,22 +44,41 @@ class LeftOuterJoin(ra.Operator):
         assert left_attributes is not None
         assert right_attributes is not None
         # matched entries
-        join = ra.NaturalJoin(left_relation, right_relation).evaluate(sql_con)
-        # unmachted left entries
-        left_unmatched = ra.Difference(
-            left_relation, ra.Projection(join, left_attributes)
-        ).evaluate(sql_con)
-        right_nulls = ra.Relation.constant_nulls(
-            right_relation.name,
-            [attr for attr in right_attributes if attr not in left_attributes],
-            len(left_unmatched.rows),
-        )
-        left_padded = ra.CrossProduct(left_unmatched, right_nulls).evaluate(sql_con)
-        suffix_map_left_padded = {
-            attr.split(".")[1]: attr for attr in left_padded.attributes
-        }
-        new_order_left_padded = [
-            suffix_map_left_padded[attr.split(".")[1]] for attr in join.attributes
+        left_df = left_relation.dataframe
+        right_df = right_relation.dataframe
+
+        left_df.columns = left_attributes
+        right_df.columns = right_attributes
+
+        common_attributes = [
+            attribute for attribute in left_attributes if attribute in right_attributes
         ]
-        left_padded.dataframe = left_padded.dataframe[new_order_left_padded]
-        return ra.Union(join, left_padded).evaluate()
+
+        new_relation = ra.Relation(
+            f"{left_relation.name}+{right_relation.name}",
+            left_relation.preferred_prefix,
+            right_relation.preferred_prefix,
+        )
+
+        try:
+            if common_attributes:
+                new_relation.dataframe = left_df.merge(
+                    right_df, how="left", on=common_attributes
+                )
+            else:
+                new_relation.dataframe = left_df.copy()
+                for attribute in right_attributes:
+                    if attribute not in left_attributes:
+                        new_relation.dataframe[attribute] = "-"
+        except ValueError as e:
+            raise ValueError(str(e)[0:-48]) from None
+
+        new_relation.dataframe.drop_duplicates(inplace=True)
+        new_relation.dataframe.columns = [
+            f"{left_relation.name}+{right_relation.name}.{col}"
+            for col in new_relation.dataframe.columns
+        ]
+        if not new_relation.dataframe.empty:
+            with pd.option_context("future.no_silent_downcasting", True):
+                new_relation.dataframe = new_relation.dataframe.fillna("-")
+        return new_relation

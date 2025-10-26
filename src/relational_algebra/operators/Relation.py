@@ -40,26 +40,6 @@ class Relation(ra.Operator):
         self.was_evaluated = False
         self.preferred_prefix = combine_prefix(preferred_prefix, preferred_prefix_2)
 
-    @classmethod
-    @typechecked
-    def constant_nulls(cls, name: str, attributes: List[str], n: int) -> Relation:
-        """
-        Parameters
-        ----------
-        str: name
-            name + '_Null' constitutes the Relation name
-        attributes: List[str]
-            List of attributes for which a Relation with Null tuples will be created
-        n: int
-            Number of Null tuples to be created
-        """
-        rel = cls(f"{name}_Null")
-        rel.add_attributes(attributes, add_name=True)
-        rows = [{attribute: None for attribute in attributes} for _ in range(n)]
-        rel.add_rows([[row[attribute] for attribute in attributes] for row in rows])
-        rel.was_evaluated = False
-        return rel
-
     @typechecked
     def __repr__(self) -> str:
         return f"(\\text{{{self.name}}})"
