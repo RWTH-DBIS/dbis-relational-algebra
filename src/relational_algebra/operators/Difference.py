@@ -42,7 +42,11 @@ class Difference(ra.Operator):
             map(lambda attribute: f"{left_relation.name}.{attribute}", attributes)
         )
         # create the new relation
-        new_relation = ra.Relation(left_relation.name)
+        new_relation = ra.Relation(
+            left_relation.name,
+            left_relation.preferred_prefix,
+            right_relation.preferred_prefix,
+        )
         new_relation.was_evaluated = True
         left_dataframe = (
             left_relation.dataframe.copy()

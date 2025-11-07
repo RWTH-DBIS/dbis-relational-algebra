@@ -46,18 +46,24 @@ test-py311:
   variables:
     TOXENV: py311
 
+test-py313:
+  image: python:3.13
+  <<: *test
+  variables:
+    TOXENV: py313
+
 formatting-check:
     stage: test
     script:
       - pip install .[test]
-      - black --check src/ tests/
+      - black --check .
 
 
-build-310:
-    image: python:3.10
+build-job:
+    image: python:3.13
     stage: build
     needs:
-        - test-py310
+        - test-py313
     script:
         - pip install .[build]
         - python -m build
