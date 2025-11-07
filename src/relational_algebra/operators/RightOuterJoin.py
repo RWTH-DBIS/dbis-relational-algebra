@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import re
 
 import sqlite3
 from typing import Optional
@@ -71,7 +72,17 @@ class RightOuterJoin(ra.Operator):
                     if attribute not in right_attributes:
                         new_relation.dataframe[attribute] = "-"
         except ValueError as e:
-            raise ValueError(str(e)[0:-48]) from None
+            msg = str(e)
+            m = re.search(r"merge on (\w+) and (\w+) columns for key '([^']+)'", msg)
+            if m:
+                dtype1, dtype2, col = m.groups()
+                raise ValueError(
+                    f"Cannot perform {self.__class__.__name__} on Relations '{left_relation.name}' and '{right_relation.name}': incompatible attribute types {dtype1} and {dtype2} for column '{col}'."
+                ) from None
+            else:
+                raise ValueError(
+                    f"Cannot perform {self.__class__.__name__} on Relations '{left_relation.name}' and '{right_relation.name}': incompatible attribute types for atleast one column."
+                ) from None
 
         new_relation.dataframe.drop_duplicates(inplace=True)
         new_relation.dataframe = new_relation.dataframe[
