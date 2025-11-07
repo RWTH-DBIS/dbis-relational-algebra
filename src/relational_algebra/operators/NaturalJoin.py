@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 import sqlite3
 from typing import Optional
 
@@ -75,9 +77,24 @@ class NaturalJoin(ra.Operator):
         if len(common_attributes) == 0:
             new_relation.dataframe = left_dataframe.merge(right_dataframe, how="cross")
         else:
-            new_relation.dataframe = left_dataframe.merge(
-                right_dataframe, how="inner", on=common_attributes
-            )
+            try:
+                new_relation.dataframe = left_dataframe.merge(
+                    right_dataframe, how="inner", on=common_attributes
+                )
+            except ValueError as e:
+                msg = str(e)
+                m = re.search(
+                    r"merge on (\w+) and (\w+) columns for key '([^']+)'", msg
+                )
+                if m:
+                    dtype1, dtype2, col = m.groups()
+                    raise ValueError(
+                        f"Cannot perform {self.__class__.__name__} on Relations '{left_relation.name}' and '{right_relation.name}': incompatible attribute types {dtype1} and {dtype2} for column '{col}'."
+                    ) from None
+                else:
+                    raise ValueError(
+                        f"Cannot perform {self.__class__.__name__} on Relations '{left_relation.name}' and '{right_relation.name}': incompatible attribute types for atleast one column."
+                    ) from None
         # drop duplicates
         new_relation.dataframe.drop_duplicates(inplace=True)
         return new_relation

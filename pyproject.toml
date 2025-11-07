@@ -1,6 +1,6 @@
 [project]
 name = "dbis-relational-algebra"
-version = "1.1.8"
+version = "1.1.9"
 description = "RWTH Aachen Computer Science i5/dbis assets for Lecture Datenbanken und Informationssysteme"
 authors = [
 	{ name = "DBIS i5 RWTH", email="dbis-vl@dbis.rwth-aachen.de" }
@@ -38,4 +38,5 @@ include_package_data = true
 requires = ['setuptools>=42']
 build-backend = 'setuptools.build_meta'
 
-
+[tool.black]
+required-version = 23
