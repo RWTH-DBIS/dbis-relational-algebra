@@ -6,11 +6,11 @@
 This library provides a Python implementation of the [relational algebra](https://en.wikipedia.org/wiki/Relational_algebra).
 
 # Features
- - Create expressions of the relational algebra in python.
- - Load data from SQLite tables.
- - Evaluate expressions on the data.
- - Convert these expressions to text in LaTeX math mode.
- - Convert a relation / the result of an expression to a Markdown table.
+ - Create relational algebra expressions in Python.
+ - Load data from SQLite or directly in memory.
+ - Evaluate expressions an get results as relations.
+ - Convert expressions to LaTeX math mode.
+ - Render relations as Markdown tables.
 
 # Installation
 Install via pip:
@@ -18,17 +18,40 @@ Install via pip:
 pip install dbis-relational-algebra
 ```
 
-# Usage
-## Overview of supported operators
+# Loading Data
+## From SQLite (recommended)
+To load data, an [SQLite connection](https://docs.python.org/3/library/sqlite3.html) can be used. This connection must be passed to the relational algebra expression for the evaluation.
+```python
+import sqlite3
+from relational_algebra import *
+
+connection = sqlite3.connect("example.db")
+relation = Relation("R") # uses table R from the database
+```
+
+## Manually
+It is also possible to load a relation with data by hand
+```python
+relation = Relation("R")
+relation.add_attributes(["a", "b", "c"])
+relation.add_rows([
+	[1, 2, 3],
+	[4, 5, 6],
+	[7, 8, 9],
+])
+```
+Manual data loading is useful for quick examples but suffers from missings SQLite's optimization which results in higher memory usage and slower performance.
+
+# Building and Evaluating Expressions
+## Operators
 - [x] Cross Product / Cartesian Product (`*`)
 - [x] Difference (`-`)
 - [x] Division (`/`)
 - [x] Intersection (`&`)
-- [x] Left Semijoin
+- [x] Left/Right Semijoin
 - [x] Natural Join
 - [x] Projection
 - [x] Rename
-- [x] Right Semijoin
 - [x] Selection
 - [x] Theta Join
 - [x] Union (`|`)
@@ -36,7 +59,7 @@ pip install dbis-relational-algebra
 The set operators Union, Intersection, and Difference require the relations to be [union-compatible](https://en.wikipedia.org/wiki/Relational_algebra#Union-compatible_relations).
 
 ## Formulas
-For the Theta Join and the Selection, a formula is used to specify the join or selection condition. These formulas can be created using the following operators:
+For the Theta Join and Selection, a formula is used to specify the join or selection condition. These formulas can be created using the following operators:
 - [x] And
 - [x] Or
 - [x] Not
@@ -46,48 +69,77 @@ For the Theta Join and the Selection, a formula is used to specify the join or s
 - [x] LessEquals
 - [x] LessThan
 
-In the comparators, two values have to be specified. At least one of these values must be a python `str`, which references a column of the relation.
+In the comparators, two values have to be specified. At least one of these values must be a Python `str`, which references a column of the relation.
 
-## Loading data & Evaluating an expression
-To load data, an [SQLite connection](https://docs.python.org/3/library/sqlite3.html) can be used (recommended). This connection must be passed to the relational algebra expression for the evaluation.
-
-It is also possible to load a relation with data by hand (not recommended):
+## Examples
+Example using SQLite to load data
 ```python
-relation = Relation(name="R")
-relation.add_attributes(["a", "b", "c"])
+import sqlite3
+from relational_algebra import *
+
+connection = sqlite3.connect("example.db")
+
+expr = Projection(
+	Selection(
+		Relation("R") * Relation("S"),
+		Equals("R.b", "S.d")
+	),
+	["R.a", "S.c"]
+)
+
+result = expr.evaluate(sql_con=connection)
+
+print(result.attributes)  # column names
+print(result.rows)        # data rows
+
+"""
+Alternative for displaying if using jupyter notebooks:
+display(Markdown(result.tabulate()))
+"""
+```
+
+Example that manually loads data
+```python
+from relational_algebra import *
+
+relation = Relation("R")
+relation.add_attributes(["a", "b"])
 relation.add_rows([
-	[1, 2, 3],
-	[4, 5, 6],
-	[7, 8, 9],
+	[1, 2],
+	[4, 5],
 ])
+relation_2 = Relation("S")
+relation_2.add_attributes(["c", "d"])
+relation_2.add_rows([
+	[6, 3],
+	[4, 2],
+])
+
+expr = Projection(
+	Selection(
+		Relation("R") * Relation("S"),
+		Equals("R.b", "S.d")
+	),
+	["R.a", "S.c"]
+)
+
+result = expr.evaluate(sql_con=connection)
+
+print(result.attributes)  # column names
+print(result.rows)        # data rows
+
+"""
+Alternative for displaying if using jupyter notebooks:
+display(Markdown(result.tabulate()))
+"""
 ```
 
-An expression can be created by using the operators and formulas listed above. The expression can then be evaluated on the data:
-```python
-# Cross Product RxS, see above
-expression = Relation("R") * Relation("S")
-result = expression.evaluate(sql_con=connection)
-```
-```python
-# Theta Join R.a = S.b, see above
-expression = ThetaJoin("R", "S", Not(Equals("R.a", "S.b")))
-result = expression.evaluate(sql_con=connection)
-```
-
-The rows and column names of a relation (result) are accessible using the following attributes:
-```python
-result.attributes # list of column names (str)
-result.rows # set of rows (tuple)
-```
-
-
-## Best practices:
- - After joining two relations or the cross product of two relations, you should always give column names that appear in both relations a new distinct name.
+# Best Practice
+ - Before joining two relations or the cross product of two relations, you should always give column names that appear in both relations a new distinct name.
  - After joining two relations, the cross product of two relations, or some set operation on two relations, you should always give the resulting relation a new distinct name.
  - When referencing a column in a comparator, it is recommended that this column should be referred to using a detailed description, i.e. refer to column `a` of relation `R` as `"R.a"` instead of `"a"`.
 
 # Developer Notes
-A few design choices were made:
  - Internally, the data is stored in a [pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html). This accelerates the relational algebra operators greatly.
  - In relational algebra, a column `a` from a relation `R` can be referred to as `a` and `R.a`. Internally, the column name is always stored using the full name, i.e. `R.a`. This is done to avoid ambiguities when a column `a` is present in multiple relations.
  - When joining two relations (or also cross product), the relational algebra provides no guidelines on how the resulting relation should be named. Thus, if `a` is a column of relation `R`, joining relations `R` and `S` results in a relation, where `R.a` and `S.a` might refer to this column `a` (depending on if `a` also references a column in `S`). Thus, generally speaking, joining two relations `R` and `S` will internally result in a relation named `R+S`, and the column `R.a` will now be named `R+S.a` (if there is no column `S.a`).
