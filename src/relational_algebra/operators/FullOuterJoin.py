@@ -57,8 +57,6 @@ class FullOuterJoin(ra.Operator):
 
         new_relation = ra.Relation(
             f"{left_relation.name}+{right_relation.name}",
-            left_relation.preferred_prefix,
-            right_relation.preferred_prefix,
         )
 
         try:

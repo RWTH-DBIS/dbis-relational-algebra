@@ -49,6 +49,7 @@ Manual data loading is useful for quick examples but suffers from missings SQLit
 - [x] Division (`/`)
 - [x] Intersection (`&`)
 - [x] Left/Right Semijoin
+- [x] Full/Left/Right Outer Join
 - [x] Natural Join
 - [x] Projection
 - [x] Rename
@@ -142,4 +143,4 @@ display(Markdown(result.tabulate()))
 # Developer Notes
  - Internally, the data is stored in a [pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html). This accelerates the relational algebra operators greatly.
  - In relational algebra, a column `a` from a relation `R` can be referred to as `a` and `R.a`. Internally, the column name is always stored using the full name, i.e. `R.a`. This is done to avoid ambiguities when a column `a` is present in multiple relations.
- - When joining two relations (or also cross product), the relational algebra provides no guidelines on how the resulting relation should be named. Thus, if `a` is a column of relation `R`, joining relations `R` and `S` results in a relation, where `R.a` and `S.a` might refer to this column `a` (depending on if `a` also references a column in `S`). Thus, generally speaking, joining two relations `R` and `S` will internally result in a relation named `RS`, and the column `R.a` will now be named `R+S.a` (if there is no column `S.a`).
+ - When joining two relations (or also cross product), the relational algebra provides no guidelines on how the resulting relation should be named. Thus, if `a` is a column of relation `R`, joining relations `R` and `S` results in a relation, where `R.a` and `S.a` might refer to this column `a` (depending on if `a` also references a column in `S`). Thus, generally speaking, joining two relations `R` and `S` will internally result in a relation named `RS`, and the column `R.a` will now be named `RS.a` (if there is no column `S.a`).
