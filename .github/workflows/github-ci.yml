@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: CI Pipeline
+=======
+name: CI Pipeline (Optimized)
+>>>>>>> main
 
 on:
   push:
@@ -12,7 +16,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+<<<<<<< HEAD
         python-version: ["3.10", "3.11", "3.13"]
+=======
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+>>>>>>> main
     
     steps:
       - name: Checkout code
